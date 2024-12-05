@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { ClerkProvider } from '@clerk/nextjs';
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import localFont from 'next/font/local';
 import { extractRouterConfig } from 'uploadthing/server';
@@ -27,13 +28,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
