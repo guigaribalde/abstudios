@@ -5,6 +5,7 @@ import jsxA11y from "eslint-plugin-jsx-a11y";
 import playwright from "eslint-plugin-playwright";
 import tailwind from "eslint-plugin-tailwindcss";
 import testingLibrary from "eslint-plugin-testing-library";
+import tanstack from "@tanstack/eslint-plugin-query";
 
 export default antfu(
   {
@@ -25,6 +26,7 @@ export default antfu(
     ignores: ["migrations/**/*", "next-env.d.ts"],
   },
   ...tailwind.configs["flat/recommended"],
+  ...tanstack.configs["flat/recommended"],
   jsxA11y.flatConfigs.recommended,
   {
     plugins: {
