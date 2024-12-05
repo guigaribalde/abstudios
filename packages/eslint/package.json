@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./next-js": "./next.js"
+    "./next-js": "./next.js",
+    "./lib": "./lib.js"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^3.11.2",
