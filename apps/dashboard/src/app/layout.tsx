@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
+import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
 import localFont from 'next/font/local';
+import { extractRouterConfig } from 'uploadthing/server';
+import { ourFileRouter } from './api/uploadthing/core';
 import './globals.css';
 
 const geistSans = localFont({
@@ -28,6 +31,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
         {children}
       </body>
     </html>
