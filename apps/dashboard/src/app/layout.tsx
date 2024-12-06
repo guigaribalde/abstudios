@@ -1,22 +1,11 @@
 import type { Metadata } from 'next';
+import { Toaster } from '@/components/ui/sonner';
 import RootProvider from '@/providers/root';
 import { ClerkProvider } from '@clerk/nextjs';
 import { NextSSRPlugin } from '@uploadthing/react/next-ssr-plugin';
-import localFont from 'next/font/local';
 import { extractRouterConfig } from 'uploadthing/server';
 import { ourFileRouter } from './api/uploadthing/core';
 import './globals.css';
-
-const geistSans = localFont({
-  src: './fonts/GeistVF.woff',
-  variable: '--font-geist-sans',
-  weight: '100 900',
-});
-const geistMono = localFont({
-  src: './fonts/GeistMonoVF.woff',
-  variable: '--font-geist-mono',
-  weight: '100 900',
-});
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -31,10 +20,11 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <RootProvider>
-        <html lang="en">
+        <html lang="en" className="size-full">
           <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            className="size-full antialiased"
           >
+            <Toaster richColors theme="light" />
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
             {children}
           </body>

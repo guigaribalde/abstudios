@@ -10,6 +10,38 @@ import { pgTable } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
+export const User = pgTable('user', t => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  name: t.varchar({ length: 256 }).notNull(),
+  email: t.varchar({ length: 256 }).notNull(),
+  imageUrl: t.varchar({ length: 2048 }),
+  authProviderUserId: t.varchar({ length: 2048 }),
+  role: t
+    .text({
+      enum: ['educator', 'admin', 'super-admin'],
+    })
+    .notNull(),
+
+  createdAt: t.timestamp().defaultNow().notNull(),
+  updatedAt: t
+    .timestamp({ mode: 'date', withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
+}));
+
+export type TUser = InferSelectModel<typeof User>;
+export type NewUser = InferInsertModel<typeof User>;
+export const CreateUserSchema = createInsertSchema(User, {
+  name: z.string().min(1).max(256),
+  email: z.string().email().min(1).max(256),
+  imageUrl: z.string().url(),
+  authProviderUserId: z.string().min(1).max(2048),
+  role: z.enum(['educator', 'admin', 'super-admin']),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const Course = pgTable('course', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   title: t.varchar({ length: 256 }).notNull(),
