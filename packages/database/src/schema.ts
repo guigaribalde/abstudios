@@ -10,6 +10,26 @@ import { pgTable } from 'drizzle-orm/pg-core';
 import { createInsertSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
+export const Example = pgTable('example', t => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  example: t.varchar({ length: 256 }).notNull(),
+
+  createdAt: t.timestamp().defaultNow().notNull(),
+  updatedAt: t
+    .timestamp({ mode: 'date', withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
+}));
+
+export type TExample = InferSelectModel<typeof Example>;
+export type NewExample = InferInsertModel<typeof Example>;
+export const CreateExampleSchema = createInsertSchema(Example, {
+  example: z.string().min(1).max(256),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const User = pgTable('user', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   name: t.varchar({ length: 256 }).notNull(),
@@ -44,12 +64,21 @@ export const CreateUserSchema = createInsertSchema(User, {
 
 export const Course = pgTable('course', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
+
+  pdfUrl: t.varchar({ length: 2048 }).notNull(),
   title: t.varchar({ length: 256 }).notNull(),
   description: t.text().notNull(),
   tags: t.text().array().notNull(),
-  stem: t
+  category: t
     .text({
-      enum: ['science', 'technology', 'engineering', 'mathematics'],
+      enum: [
+        'STEM',
+        'World Languages & Cultures',
+        'Fitness & Wellness',
+        'Arts & Entertainment',
+        'Maker',
+        'Personal Skill Building',
+      ],
     })
     .notNull(),
 
@@ -63,10 +92,18 @@ export type TCourse = InferSelectModel<typeof Course>;
 export type NewCourse = InferInsertModel<typeof Course>;
 
 export const CreateCourseSchema = createInsertSchema(Course, {
+  pdfUrl: z.string().url(),
   title: z.string().min(1).max(256),
   description: z.string().min(1),
   tags: z.array(z.string()).nonempty(),
-  stem: z.enum(['science', 'technology', 'engineering', 'mathematics']),
+  category: z.enum([
+    'STEM',
+    'World Languages & Cultures',
+    'Fitness & Wellness',
+    'Arts & Entertainment',
+    'Maker',
+    'Personal Skill Building',
+  ]),
 }).omit({
   id: true,
   createdAt: true,
@@ -79,8 +116,7 @@ export const Season = pgTable('season', t => ({
     .uuid()
     .notNull()
     .references(() => Course.id),
-  seasonNumber: t.integer().notNull(),
-  title: t.varchar({ length: 256 }).notNull(),
+  number: t.integer().notNull(),
 
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
@@ -93,23 +129,20 @@ export type NewSeason = InferInsertModel<typeof Season>;
 
 export const CreateSeasonSchema = createInsertSchema(Season, {
   courseId: z.string().uuid(),
-  seasonNumber: z.number().int().positive(),
-  title: z.string().min(1).max(256),
+  number: z.number().int().positive(),
 }).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const Episode = pgTable('episode', t => ({
+export const Session = pgTable('session', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   seasonId: t
     .uuid()
     .notNull()
-    .references(() => Season.id),
-  episodeNumber: t.integer().notNull(),
-  title: t.varchar({ length: 256 }).notNull(),
-  description: t.text().notNull(),
+    .references(() => Season.id, { onDelete: 'cascade' }),
+  number: t.integer().notNull(),
 
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
@@ -117,14 +150,12 @@ export const Episode = pgTable('episode', t => ({
     .$onUpdateFn(() => sql`now()`),
 }));
 
-export type TEpisode = InferSelectModel<typeof Episode>;
-export type NewEpisode = InferInsertModel<typeof Episode>;
+export type TSession = InferSelectModel<typeof Session>;
+export type NewSession = InferInsertModel<typeof Session>;
 
-export const CreateEpisodeSchema = createInsertSchema(Episode, {
+export const CreateSessionSchema = createInsertSchema(Session, {
   seasonId: z.string().uuid(),
-  episodeNumber: z.number().int().positive(),
-  title: z.string().min(1).max(256),
-  description: z.string().min(1),
+  number: z.number().int().positive(),
 }).omit({
   id: true,
   createdAt: true,
@@ -133,13 +164,16 @@ export const CreateEpisodeSchema = createInsertSchema(Episode, {
 
 export const Video = pgTable('video', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
-  url: t.varchar({ length: 2048 }).notNull(),
 
-  episodeId: t
+  url: t.varchar({ length: 2048 }).notNull(),
+  title: t.varchar({ length: 256 }).notNull(),
+  description: t.text().notNull(),
+
+  sessionId: t
     .uuid()
     .notNull()
     .unique()
-    .references(() => Episode.id),
+    .references(() => Session.id),
 
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
@@ -149,6 +183,15 @@ export const Video = pgTable('video', t => ({
 
 export type TVideo = InferSelectModel<typeof Video>;
 export type NewVideo = InferInsertModel<typeof Video>;
+export const CreateVideoSchema = createInsertSchema(Video, {
+  url: z.string().url(),
+  title: z.string().min(1).max(256),
+  description: z.string().min(1),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
 
 export const CourseRelations = relations(Course, ({ many }) => ({
   seasons: many(Season),
@@ -159,99 +202,23 @@ export const SeasonRelations = relations(Season, ({ one, many }) => ({
     fields: [Season.courseId],
     references: [Course.id],
   }),
-  episodes: many(Episode),
+  sessions: many(Session),
 }));
 
-export const EpisodeRelations = relations(Episode, ({ one }) => ({
+export const SessionRelations = relations(Session, ({ one }) => ({
   season: one(Season, {
-    fields: [Episode.seasonId],
+    fields: [Session.seasonId],
     references: [Season.id],
   }),
   video: one(Video, {
-    fields: [Episode.id],
-    references: [Video.episodeId],
+    fields: [Session.id],
+    references: [Video.sessionId],
   }),
 }));
 
 export const VideoRelations = relations(Video, ({ one }) => ({
-  episode: one(Episode, {
-    fields: [Video.episodeId],
-    references: [Episode.id],
+  session: one(Session, {
+    fields: [Video.sessionId],
+    references: [Session.id],
   }),
 }));
-
-// export const Post = pgTable("post", (t) => ({
-//   id: t.uuid().notNull().primaryKey().defaultRandom(),
-//   title: t.varchar({ length: 256 }).notNull(),
-//   content: t.text().notNull(),
-//   createdAt: t.timestamp().defaultNow().notNull(),
-//   updatedAt: t
-//     .timestamp({ mode: "date", withTimezone: true })
-//     .$onUpdateFn(() => sql`now()`),
-// }));
-//
-// export const CreatePostSchema = createInsertSchema(Post, {
-//   title: z.string().max(256),
-//   content: z.string().max(256),
-// }).omit({
-//   id: true,
-//   createdAt: true,
-//   updatedAt: true,
-// });
-//
-// export const User = pgTable("user", (t) => ({
-//   id: t.uuid().notNull().primaryKey().defaultRandom(),
-//   name: t.varchar({ length: 255 }),
-//   email: t.varchar({ length: 255 }).notNull(),
-//   emailVerified: t.timestamp({ mode: "date", withTimezone: true }),
-//   image: t.varchar({ length: 255 }),
-// }));
-//
-// export const UserRelations = relations(User, ({ many }) => ({
-//   accounts: many(Account),
-// }));
-//
-// export const Account = pgTable(
-//   "account",
-//   (t) => ({
-//     userId: t
-//       .uuid()
-//       .notNull()
-//       .references(() => User.id, { onDelete: "cascade" }),
-//     type: t
-//       .varchar({ length: 255 })
-//       .$type<"email" | "oauth" | "oidc" | "webauthn">()
-//       .notNull(),
-//     provider: t.varchar({ length: 255 }).notNull(),
-//     providerAccountId: t.varchar({ length: 255 }).notNull(),
-//     refresh_token: t.varchar({ length: 255 }),
-//     access_token: t.text(),
-//     expires_at: t.integer(),
-//     token_type: t.varchar({ length: 255 }),
-//     scope: t.varchar({ length: 255 }),
-//     id_token: t.text(),
-//     session_state: t.varchar({ length: 255 }),
-//   }),
-//   (account) => ({
-//     compoundKey: primaryKey({
-//       columns: [account.provider, account.providerAccountId],
-//     }),
-//   }),
-// );
-//
-// export const AccountRelations = relations(Account, ({ one }) => ({
-//   user: one(User, { fields: [Account.userId], references: [User.id] }),
-// }));
-//
-// export const Session = pgTable("session", (t) => ({
-//   sessionToken: t.varchar({ length: 255 }).notNull().primaryKey(),
-//   userId: t
-//     .uuid()
-//     .notNull()
-//     .references(() => User.id, { onDelete: "cascade" }),
-//   expires: t.timestamp({ mode: "date", withTimezone: true }).notNull(),
-// }));
-//
-// export const SessionRelations = relations(Session, ({ one }) => ({
-//   user: one(User, { fields: [Session.userId], references: [User.id] }),
-// }));

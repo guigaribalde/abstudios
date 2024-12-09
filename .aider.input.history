@@ -1,0 +1,19 @@
+
+# 2024-12-08 22:24:51.325261
++n
+
+# 2024-12-08 22:25:20.103676
++transform the following command in a nushell alias or fun: git diff | http post -t application/json -H [Authorization 'Bearer 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'] https://api.groq.com/openai/v1/chat/completions {                                   main[!?] via  v23.1.0 took 3s
++∙     "model": "llama-3.3-70b-versatile",
++∙     "temperature": 0.0,
++∙     "messages": [ {"role": "system", "content": "You are a powerful system that understands git diffs and create commit messages. You will be given a git diff and you are expected to answer only with a reasonable and consize git commit message. You answer must contain only the commit message and nothing else. Follow the Conventional Commits Pattern. Get the high level intent of the commit and apply the message following the following framework: <framework>If applied this commit will [THIS IS YOUR COMMIT MESSAGE]</framework><example>feat(scope):[THIS IS YOUR COMMIT MESSAGE]</example>"},
++∙         {
++∙             "role": "user",
++∙             "content": $in
++∙         }
++∙     ]
++∙   } | get choices.0.message.content
++
+
+# 2024-12-08 22:25:22.638760
++n

@@ -3,9 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
-
 body {
-  font-family: "Montserrat", sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-optical-sizing: auto;
   font-style: normal;
 }
@@ -91,4 +90,9 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.popover-content-width-same-as-its-trigger {
+  width: var(--radix-popover-trigger-width);
+  max-height: var(--radix-popover-content-available-height);
 }
