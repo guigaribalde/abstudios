@@ -193,6 +193,33 @@ export const CreateVideoSchema = createInsertSchema(Video, {
   updatedAt: true,
 });
 
+export const School = pgTable('school', t => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  organizationName: t.varchar({ length: 256 }).notNull(),
+  schoolName: t.varchar({ length: 256 }),
+  active: t.boolean().notNull().default(true),
+
+  createdAt: t.timestamp().defaultNow().notNull(),
+  updatedAt: t
+    .timestamp()
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+}));
+
+export type TSchool = InferSelectModel<typeof School>;
+export type NewSchool = InferInsertModel<typeof School>;
+export const CreateSchoolSchema = createInsertSchema(School, {
+  organizationName: z.string().min(1).max(256),
+  schoolName: z.string().max(256),
+  active: z.boolean().optional(),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const EditSchoolSchema = CreateSchoolSchema;
+
 export const CourseRelations = relations(Course, ({ many }) => ({
   seasons: many(Season),
 }));

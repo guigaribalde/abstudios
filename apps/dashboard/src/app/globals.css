@@ -44,6 +44,10 @@ body {
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --success-600: 143 48% 32%;
+    --success-background: 140 71% 96%;
+    --error-background: 0 87% 97%;
+    --error-800: 0 70% 35%;
   }
   /* .dark { */
   /*   --background: 0 0% 3.9%; */
