@@ -10,4 +10,4 @@ export const db: PostgresJsDatabase<typeof schema> = drizzle({
   casing: 'snake_case',
 });
 
-export { eq, sql } from 'drizzle-orm';
+export { and, eq, ilike, or, sql } from 'drizzle-orm';

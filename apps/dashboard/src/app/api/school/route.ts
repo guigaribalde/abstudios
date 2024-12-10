@@ -1,9 +1,27 @@
-import { db } from '@acme/database/client';
+import type { NextRequest } from 'next/server';
+import { and, db, eq, ilike, or } from '@acme/database/client';
 import { CreateSchoolSchema, School } from '@acme/database/schema';
 
-export async function GET(_request: Request) {
+export async function GET(request: NextRequest) {
   try {
-    const schools = await db.select().from(School);
+    const search = request.nextUrl.searchParams.get('search');
+    const active = request.nextUrl.searchParams.get('active');
+
+    let where;
+
+    if (search || active) {
+      where = and(
+        search
+          ? or(
+            ilike(School.organizationName, `%${search}%`),
+            ilike(School.schoolName, `%${search}%`),
+          )
+          : undefined,
+        active ? eq(School.active, active === 'true') : undefined,
+      );
+    }
+
+    const schools = (await db.select().from(School).where(where));
 
     return new Response(JSON.stringify(schools), {
       status: 200,
