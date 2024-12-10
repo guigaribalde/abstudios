@@ -40,7 +40,6 @@ export const SchoolsPage = () => {
     },
 
   });
-  console.log('🚀 ~ SchoolsPage ~ isPending:', isPending);
 
   return (
     <div className="flex flex-col gap-6 px-8">
