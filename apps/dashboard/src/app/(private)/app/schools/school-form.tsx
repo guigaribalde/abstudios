@@ -73,6 +73,7 @@ export default function SchoolForm({
                 <Input
                   placeholder="School Name"
                   {...field}
+                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />

@@ -1,6 +1,6 @@
 'use client';
 
-import type { NewSchool } from '@acme/database/schema';
+import type { TSchool } from '@acme/database/schema';
 import { Badge } from '@/components/ui/badge';
 
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ export const SchoolsPage = () => {
 
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data: schools, isPending } = useQuery<NewSchool[]>({
+  const { data: schools, isPending } = useQuery<TSchool[]>({
     queryKey: ['schools', debouncedSearch, active],
     queryFn: () => {
       const params = new URLSearchParams();

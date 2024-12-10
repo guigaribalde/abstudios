@@ -16,7 +16,7 @@ import EditSchoolForm from './school-form';
 
 type EditSchoolDialogProps = {
   children: React.ReactNode;
-  school: z.infer<typeof EditSchoolSchema>;
+  school: z.infer<typeof EditSchoolSchema> & { id: string };
 };
 
 export default function EditSchoolDialog({ children, school }: EditSchoolDialogProps) {
