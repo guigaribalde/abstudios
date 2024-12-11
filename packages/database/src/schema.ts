@@ -33,6 +33,8 @@ export const CreateExampleSchema = createInsertSchema(Example, {
 export const User = pgTable('user', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   name: t.varchar({ length: 256 }).notNull(),
+  lastName: t.varchar({ length: 256 }),
+  phone: t.varchar({ length: 256 }),
   email: t.varchar({ length: 256 }).notNull(),
   imageUrl: t.varchar({ length: 2048 }),
   authProviderUserId: t.varchar({ length: 2048 }),
@@ -41,7 +43,8 @@ export const User = pgTable('user', t => ({
       enum: ['educator', 'admin', 'super-admin'],
     })
     .notNull(),
-
+  school: t.varchar({ length: 256 }),
+  active: t.boolean().notNull().default(true),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
     .timestamp({ mode: 'date', withTimezone: true })
@@ -53,14 +56,19 @@ export type NewUser = InferInsertModel<typeof User>;
 export const CreateUserSchema = createInsertSchema(User, {
   name: z.string().min(1).max(256),
   email: z.string().email().min(1).max(256),
+  lastName: z.string(),
+  phone: z.string(),
   imageUrl: z.string().url(),
   authProviderUserId: z.string().min(1).max(2048),
+  active: z.boolean(),
   role: z.enum(['educator', 'admin', 'super-admin']),
+  school: z.string(),
 }).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
+export const EditUserSchema = CreateUserSchema;
 
 export const Course = pgTable('course', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),

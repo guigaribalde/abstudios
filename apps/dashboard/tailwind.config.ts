@@ -73,6 +73,14 @@ export default withUt({
           DEFAULT: '#16B2B1',
           foreground: 'hsl(var(--primary-foreground))',
         },
+        success: {
+          600: 'hsl(var(--success-600))',
+          background: 'hsl(var(--success-background))',
+        },
+        error: {
+          background: 'hsl(var(--error-background))',
+          800: 'hsl(var(--error-800))',
+        },
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
