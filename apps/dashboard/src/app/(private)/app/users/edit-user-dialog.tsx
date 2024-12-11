@@ -1,7 +1,5 @@
 'use client';
 
-import type { TUser } from '@acme/database/schema';
-import type { UserType } from './type';
 import {
   Dialog,
   DialogContent,
@@ -9,9 +7,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import type { TUser } from '@acme/database/schema';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import type { UserType } from './type';
 import UserForm from './user-form';
 
 type EditUserDialogProps = {
@@ -22,7 +22,7 @@ type EditUserDialogProps = {
 export default function EditUserDialog({ children, user }: EditUserDialogProps) {
   const [open, setOpen] = useState(false);
   async function putUser(data: UserType) {
-    const response = await fetch('/api/user', {
+    const response = await fetch(`/api/user/${user.id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
