@@ -26,7 +26,7 @@ export default function AddVideoDialog({ children }: AddVideoDialogProps) {
         </DialogHeader>
 
         <UploadForm
-          onSubmit={async (data) => {
+          onSubmit={async () => {
             setOpen(false);
           }}
         />

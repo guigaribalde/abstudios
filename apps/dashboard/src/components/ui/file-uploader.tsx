@@ -69,14 +69,16 @@ type FileUploaderProps = {
   disabled?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
+const defaultAccept = {
+  'video/*': [],
+};
+
 export function FileUploader(props: FileUploaderProps) {
   const {
     value: valueProp,
     onValueChange,
     onDrop,
-    accept = {
-      'video/*': [],
-    },
+    accept = defaultAccept,
     maxSize = 1024 * 1024 * 2,
     maxFileCount = 1,
     multiple = false,

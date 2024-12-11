@@ -40,6 +40,21 @@ export default function EditSchoolDialog({ children, school }: EditSchoolDialogP
     return response.json();
   };
 
+  const requestDeleteSchool = async () => {
+    const response = await fetch(`/api/school/${school.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete school');
+    }
+
+    return response.json();
+  };
+
   const { mutate: editSchool } = useMutation({
     mutationFn: putSchool,
     onSuccess: () => {
@@ -49,6 +64,18 @@ export default function EditSchoolDialog({ children, school }: EditSchoolDialogP
     },
     onError: () => {
       toast.error('Failed to update school');
+    },
+  });
+
+  const { mutate: deleteSchool } = useMutation({
+    mutationFn: requestDeleteSchool,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['schools'] });
+      toast.success('School deleted!');
+      setOpen(false);
+    },
+    onError: () => {
+      toast.error('Failed to delete school');
     },
   });
 
@@ -64,6 +91,7 @@ export default function EditSchoolDialog({ children, school }: EditSchoolDialogP
           onSubmit={editSchool}
           defaultValues={school}
           onCancel={() => setOpen(false)}
+          onDelete={deleteSchool}
         />
       </DialogContent>
     </Dialog>

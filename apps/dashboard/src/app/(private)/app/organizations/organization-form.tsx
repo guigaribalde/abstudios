@@ -1,9 +1,7 @@
 'use client';
 
-import type { TOrganization } from '@acme/database/schema';
 import type { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Combobox } from '@/components/ui/combobox';
 import {
   Form,
   FormControl,
@@ -14,43 +12,33 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import { CreateSchoolSchema } from '@acme/database/schema';
+import { CreateOrganizationSchema } from '@acme/database/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Trash } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
-type CreateSchoolFormType = z.infer<typeof CreateSchoolSchema>;
-type AddSchoolFormProps = {
-  defaultValues?: CreateSchoolFormType;
-  onSubmit: (data: CreateSchoolFormType) => void;
+type CreateOrganizationFormType = z.infer<typeof CreateOrganizationSchema>;
+type AddOrganizationFormProps = {
+  defaultValues?: CreateOrganizationFormType;
+  onSubmit: (data: CreateOrganizationFormType) => void;
   onCancel: () => void;
   onDelete?: () => void;
 };
 
-const initialValues: CreateSchoolFormType = {
-  organizationId: '',
+const initialValues: CreateOrganizationFormType = {
   name: '',
   active: true,
 };
 
-export default function SchoolForm({
+export default function OrganizationForm({
   defaultValues = initialValues,
   onSubmit,
   onCancel,
   onDelete,
-}: AddSchoolFormProps) {
-  const form = useForm<CreateSchoolFormType>({
-    resolver: zodResolver(CreateSchoolSchema),
+}: AddOrganizationFormProps) {
+  const form = useForm<CreateOrganizationFormType>({
+    resolver: zodResolver(CreateOrganizationSchema),
     defaultValues,
-  });
-
-  const { data: organizations, isPending: loadingOrganizations } = useQuery<TOrganization[]>({
-    queryKey: ['organizations'],
-    queryFn: async () => {
-      const response = await fetch('/api/organization');
-      return response.json();
-    },
   });
 
   return (
@@ -59,38 +47,15 @@ export default function SchoolForm({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex w-full flex-col items-start gap-6"
       >
-
-        <FormField
-          control={form.control}
-          name="organizationId"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormLabel>Organization</FormLabel>
-              <FormControl>
-                <Combobox
-                  placeholder="Select Organization"
-                  value={field.value}
-                  onChange={field.onChange}
-                  list={organizations?.map(org => ({
-                    label: org.name,
-                    value: org.id,
-                  })) ?? []}
-                  loading={loadingOrganizations}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem className="w-full">
-              <FormLabel>School Name</FormLabel>
+              <FormLabel>Organization Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="School Name"
+                  placeholder="Organization Name"
                   {...field}
                 />
               </FormControl>
@@ -104,7 +69,7 @@ export default function SchoolForm({
             name="active"
             render={({ field }) => (
               <FormItem className="flex w-full flex-col gap-2">
-                <FormLabel>Activate School?</FormLabel>
+                <FormLabel>Activate Organization?</FormLabel>
                 <FormControl>
                   <Switch
                     checked={field.value}
@@ -117,8 +82,12 @@ export default function SchoolForm({
           />
         </div>
         <div className="flex w-full justify-between gap-3">
-          {!!onDelete && (
-            <Button onClick={onDelete} type="button" variant="destructive">
+          {onDelete && (
+            <Button
+              type="button"
+              onClick={onDelete}
+              variant="destructive"
+            >
               <Trash />
               Delete
             </Button>

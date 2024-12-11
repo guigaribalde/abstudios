@@ -1,5 +1,5 @@
-import { sql } from '@vercel/postgres';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { sql } from '@vercel/postgres';
 
 import { drizzle } from 'drizzle-orm/vercel-postgres';
 import * as schema from './schema';

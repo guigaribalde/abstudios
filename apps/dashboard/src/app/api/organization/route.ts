@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
-import { and, db, eq, ilike, or } from '@acme/database/client';
-import { CreateSchoolSchema, Organization, School } from '@acme/database/schema';
+import { and, db, eq, ilike } from '@acme/database/client';
+import { CreateOrganizationSchema, Organization } from '@acme/database/schema';
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,23 +12,16 @@ export async function GET(request: NextRequest) {
     if (search || active) {
       where = and(
         search
-          ? or(
-            ilike(Organization.name, `%${search}%`),
-            ilike(School.name, `%${search}%`),
-          )
+          ? ilike(Organization.name, `%${search}%`)
+
           : undefined,
-        active ? eq(School.active, active === 'true') : undefined,
+        active ? eq(Organization.active, active === 'true') : undefined,
       );
     }
 
-    const response = (await db.select().from(School).where(where).leftJoin(Organization, eq(School.organizationId, Organization.id)));
+    const organizations = (await db.select().from(Organization).where(where));
 
-    const schools = response.map(({ organization, school }) => ({
-      ...school,
-      organization: organization ?? null,
-    }));
-
-    return new Response(JSON.stringify(schools), {
+    return new Response(JSON.stringify(organizations), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -37,7 +30,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return new Response(
       JSON.stringify({
-        error: 'Failed to fetch schools',
+        error: 'Failed to fetch organizations',
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       }),
@@ -54,7 +47,7 @@ export async function GET(request: NextRequest) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const validatedData = CreateSchoolSchema.safeParse(body);
+    const validatedData = CreateOrganizationSchema.safeParse(body);
 
     if (!validatedData.success) {
       return new Response(
@@ -71,9 +64,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const school = await db.insert(School).values(validatedData.data);
+    const organization = await db.insert(Organization).values(validatedData.data);
 
-    return new Response(JSON.stringify(school), {
+    return new Response(JSON.stringify(organization), {
       status: 201,
       headers: {
         'Content-Type': 'application/json',
@@ -82,7 +75,7 @@ export async function POST(req: Request) {
   } catch (error) {
     return new Response(
       JSON.stringify({
-        error: 'Failed to create school',
+        error: 'Failed to create organization',
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       }),

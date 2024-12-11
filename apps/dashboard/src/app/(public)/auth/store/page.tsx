@@ -1,5 +1,5 @@
 import { db } from '@acme/database/client';
-import { School, User } from '@acme/database/schema';
+import { Organization, School, User } from '@acme/database/schema';
 import { currentUser } from '@clerk/nextjs/server';
 
 import { redirect } from 'next/navigation';
@@ -23,11 +23,16 @@ export default async function Page() {
     ? 'super-admin'
     : 'educator';
 
-  try{
+  try {
+    const [organization] = await db.insert(Organization).values({
+      name: `${user.firstName}'s Org`,
+      active: true,
+    }).returning();
+
     const [school] = await db.insert(School).values({
       name: `${user.firstName}'s School`,
       active: true,
-      organizationName: `${user.firstName}'s Org`,
+      organizationId: organization.id,
     }).returning();
 
     await db.insert(User).values({
@@ -41,9 +46,8 @@ export default async function Page() {
       schoolId: school.id,
       active: true,
     });
-  }
-  catch(e){
-    console.error(e)
+  } catch (e) {
+    console.error(e);
   }
 
   // Redirect to dashboard after successful storage
