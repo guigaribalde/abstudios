@@ -1,5 +1,4 @@
 import type { NextConfig } from 'next';
-import { withNextVideo } from 'next-video/process';
 
 const nextConfig: NextConfig = {
   images: {
@@ -13,4 +12,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextVideo(nextConfig);
+export default nextConfig;

@@ -235,6 +235,7 @@ export const User = pgTable('user', t => ({
     .notNull(),
   schoolId: t.uuid().notNull().references(() => School.id, { onDelete: 'cascade' }),
   active: t.boolean().notNull().default(true),
+
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
     .timestamp({ mode: 'date', withTimezone: true })

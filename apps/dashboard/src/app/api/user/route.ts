@@ -1,6 +1,6 @@
-import { and, db, eq, ilike } from '@acme/database/client';
-import { CreateUserSchema, User } from '@acme/database/schema';
 import type { NextRequest } from 'next/server';
+import { and, db, eq, ilike, or } from '@acme/database/client';
+import { CreateUserSchema, User } from '@acme/database/schema';
 
 export async function GET(request: NextRequest) {
   try {
