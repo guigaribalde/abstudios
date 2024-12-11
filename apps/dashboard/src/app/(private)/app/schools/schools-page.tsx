@@ -28,7 +28,7 @@ export const SchoolsPage = () => {
 
   const { data: schools, isPending } = useQuery<TSchool[]>({
     queryKey: ['schools', debouncedSearch, active],
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams();
       if (debouncedSearch) {
         params.set('search', debouncedSearch);
@@ -36,7 +36,8 @@ export const SchoolsPage = () => {
       if (active !== 'all') {
         params.set('active', active);
       }
-      return fetch(`/api/school?${params.toString()}`).then(res => res.json());
+      const response = await fetch(`/api/school?${params.toString()}`);
+      return response.json();
     },
 
   });
@@ -87,14 +88,14 @@ export const SchoolsPage = () => {
               <TableBody>
                 {schools?.map(school => (
                   <TableRow key={school.id}>
-                    <TableCell>{school.schoolName || school.organizationName}</TableCell>
-                    <TableCell>
+                    <TableCell className="h-12 py-0">{school.schoolName || school.organizationName}</TableCell>
+                    <TableCell className="h-12 py-0">
                       <Badge variant={school.active ? 'success' : 'error'}>
                         {school.active ? <Check size={12} /> : <X size={12} />}
                         {school.active ? 'Active' : 'Inactive'}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="h-12 py-0">
                       <EditSchoolDialog school={school}>
                         <Button variant="ghost" size="icon" className="[&_svg]:size-6">
                           <Edit />

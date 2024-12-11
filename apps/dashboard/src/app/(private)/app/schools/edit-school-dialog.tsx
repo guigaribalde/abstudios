@@ -1,6 +1,6 @@
 'use client';
 
-import type { EditSchoolSchema } from '@acme/database/schema';
+import type { EditSchoolSchema, TSchool } from '@acme/database/schema';
 import type { z } from 'zod';
 import {
   Dialog,
@@ -16,7 +16,7 @@ import EditSchoolForm from './school-form';
 
 type EditSchoolDialogProps = {
   children: React.ReactNode;
-  school: z.infer<typeof EditSchoolSchema> & { id: string };
+  school: TSchool;
 };
 
 export default function EditSchoolDialog({ children, school }: EditSchoolDialogProps) {
