@@ -1,6 +1,6 @@
 'use client';
 
-import type { TSchoolWithOrganization } from '@acme/database/schema';
+import type { TOrganization } from '@acme/database/schema';
 import { Badge } from '@/components/ui/badge';
 
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { SchoolEmptyState } from '@/lib/assets/empty-states/school';
 import { useQuery } from '@tanstack/react-query';
 import { Check, Edit, Filter, Loader2, Search, X } from 'lucide-react';
 import { useState } from 'react';
-import EditSchoolDialog from './edit-school-dialog';
+import EditOrganizationDialog from './edit-organization-dialog';
 
 const mapStatus: Record<string, string> = {
   true: 'Active',
@@ -20,14 +20,14 @@ const mapStatus: Record<string, string> = {
   all: 'All Status',
 };
 
-export const SchoolsPage = () => {
+export const OrganizationsPage = () => {
   const [search, setSearch] = useState('');
   const [active, setActive] = useState<string>('all');
 
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data: schools, isPending } = useQuery<TSchoolWithOrganization[]>({
-    queryKey: ['schools', debouncedSearch, active],
+  const { data: organizations, isPending } = useQuery<TOrganization[]>({
+    queryKey: ['organizations', debouncedSearch, active],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (debouncedSearch) {
@@ -36,7 +36,7 @@ export const SchoolsPage = () => {
       if (active !== 'all') {
         params.set('active', active);
       }
-      const response = await fetch(`/api/school?${params.toString()}`);
+      const response = await fetch(`/api/organization?${params.toString()}`);
       return response.json();
     },
 
@@ -75,34 +75,32 @@ export const SchoolsPage = () => {
           <Loader2 size={24} className="animate-spin text-primary" />
         </div>
       )}
-      {!isPending && (schools?.length
+      {!isPending && (organizations?.length
         ? (
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Organization Name</TableHead>
-                  <TableHead>School Name</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {schools?.map(school => (
-                  <TableRow key={school.id}>
-                    <TableCell className="h-12 py-0">{school.organization?.name}</TableCell>
-                    <TableCell className="h-12 py-0">{school.name}</TableCell>
+                {organizations?.map(organization => (
+                  <TableRow key={organization.id}>
+                    <TableCell className="h-12 py-0">{organization.name}</TableCell>
                     <TableCell className="h-12 py-0">
-                      <Badge variant={school.active ? 'success' : 'error'}>
-                        {school.active ? <Check size={12} /> : <X size={12} />}
-                        {school.active ? 'Active' : 'Inactive'}
+                      <Badge variant={organization.active ? 'success' : 'error'}>
+                        {organization.active ? <Check size={12} /> : <X size={12} />}
+                        {organization.active ? 'Active' : 'Inactive'}
                       </Badge>
                     </TableCell>
                     <TableCell className="h-12 py-0">
-                      <EditSchoolDialog school={school}>
+                      <EditOrganizationDialog organization={organization}>
                         <Button variant="ghost" size="icon" className="[&_svg]:size-6">
                           <Edit />
                         </Button>
-                      </EditSchoolDialog>
+                      </EditOrganizationDialog>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -115,7 +113,7 @@ export const SchoolsPage = () => {
               <div className="flex flex-col items-center justify-center">
                 <SchoolEmptyState />
                 <h2 className="text-2xl font-bold">It looks empty in here.</h2>
-                <h3>Add schools.</h3>
+                <h3>Add organizations.</h3>
               </div>
             </div>
           ))}
