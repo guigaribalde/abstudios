@@ -196,7 +196,7 @@ export const CreateVideoSchema = createInsertSchema(Video, {
 export const School = pgTable('school', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   organizationName: t.varchar({ length: 256 }).notNull(),
-  schoolName: t.varchar({ length: 256 }),
+  name: t.varchar({ length: 256 }).notNull(),
   active: t.boolean().notNull().default(true),
 
   createdAt: t.timestamp().defaultNow().notNull(),
