@@ -238,7 +238,7 @@ export const User = pgTable('user', t => ({
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
     .timestamp({ mode: 'date', withTimezone: true })
-    .$onUpdateFn(() => sql`now()`),
+    .$onUpdateFn(() => new Date()),
 }));
 
 export type TUser = InferSelectModel<typeof User>;
