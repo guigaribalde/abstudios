@@ -44,3 +44,21 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     );
   }
 }
+
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const schoolId = (await params).id;
+    const school = await db.delete(School).where(eq(School.id, schoolId));
+    return new Response(JSON.stringify(school), { status: 200 });
+  } catch (error) {
+    console.error('Error deleting school:', error);
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to delete school',
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      }),
+      { status: 500 },
+    );
+  }
+}
