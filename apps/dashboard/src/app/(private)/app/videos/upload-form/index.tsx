@@ -166,7 +166,7 @@ export default function UploadForm({
           </TabsContent>
           <TabsContent value="extra" className="grow">
             <ExtraForm
-              onSubmit={()=>{}}
+              onSubmit={() => {}}
             />
           </TabsContent>
         </Tabs>
