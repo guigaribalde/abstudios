@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { CreateSchoolSchema } from '@acme/database/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Trash } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
 type CreateSchoolFormType = z.infer<typeof CreateSchoolSchema>;
@@ -22,6 +22,7 @@ type AddSchoolFormProps = {
   defaultValues?: CreateSchoolFormType;
   onSubmit: (data: CreateSchoolFormType) => void;
   onCancel: () => void;
+  onDelete?: () => void;
 };
 
 const initialValues: CreateSchoolFormType = {
@@ -34,6 +35,7 @@ export default function SchoolForm({
   defaultValues = initialValues,
   onSubmit,
   onCancel,
+  onDelete,
 }: AddSchoolFormProps) {
   const form = useForm<CreateSchoolFormType>({
     resolver: zodResolver(CreateSchoolSchema),
@@ -97,20 +99,28 @@ export default function SchoolForm({
             )}
           />
         </div>
-        <div className="flex w-full justify-end gap-3">
-          <Button
-            type="button"
-            onClick={onCancel}
-            variant="outline"
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-          >
-            Next
-            <ArrowRight />
-          </Button>
+        <div className="flex w-full justify-between gap-3">
+          {!!onDelete && (
+            <Button onClick={onDelete} type="button" variant="destructive">
+              <Trash />
+              Delete
+            </Button>
+          )}
+          <div className="flex w-full justify-end gap-3">
+            <Button
+              type="button"
+              onClick={onCancel}
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+            >
+              Next
+              <ArrowRight />
+            </Button>
+          </div>
         </div>
       </form>
     </Form>
