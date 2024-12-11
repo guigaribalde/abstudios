@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { CreateUserSchema } from '@acme/database/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowRightIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import type { TempUserType } from './type';
@@ -43,7 +44,14 @@ export default function UserForm({
     resolver: zodResolver(CreateUserSchema),
     defaultValues,
   });
-  const [isActive, setIsActive] = useState(defaultValues.active);
+
+  const { data: schools, isPending } = useQuery<TSchool[]>({
+    queryKey: ['schools-combobox'],
+    queryFn: async () => {
+      const response = await fetch(`/api/school`);
+      return response.json();
+    },
+  });
 
   return (
     <Form {...form}>
@@ -109,11 +117,14 @@ export default function UserForm({
                 <FormControl>
                   <Combobox
                     value={field.value}
-                    list={[
-                      { value: 'educator', label: 'Educator' },
-                      { value: 'admin', label: 'Admin' },
-                      { value: 'super-admin', label: 'Super Admin' },
-                    ]}
+                    list={
+                      schools?.map((schools) => {
+                        return {
+                          value: schools.id,
+                          label: schools.name,
+                        };
+                      }) ?? []
+                    }
                     onChange={field.onChange}
                     placeholder="Select course..."
                     // value={field.value}
@@ -150,7 +161,7 @@ export default function UserForm({
 
                 <FormControl>
                   <Combobox
-                    value={field.value}
+                    value={field.value!}
                     list={[
                       { value: 'educator', label: 'Educator' },
                       { value: 'admin', label: 'Admin' },
@@ -178,10 +189,6 @@ export default function UserForm({
                 <FormControl>
                   <Switch
                     {...field}
-                    onChange={() => {
-                      setIsActive(prev => !prev);
-                      field.onChange(isActive);
-                    }}
                   />
                 </FormControl>
                 <FormMessage />
