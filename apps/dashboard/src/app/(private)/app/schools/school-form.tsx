@@ -26,7 +26,7 @@ type AddSchoolFormProps = {
 
 const initialValues: CreateSchoolFormType = {
   organizationName: '',
-  schoolName: '',
+  name: '',
   active: true,
 };
 
@@ -65,15 +65,14 @@ export default function SchoolForm({
         />
         <FormField
           control={form.control}
-          name="schoolName"
+          name="name"
           render={({ field }) => (
             <FormItem className="w-full">
-              <FormLabel>School Name (if different)</FormLabel>
+              <FormLabel>School Name</FormLabel>
               <FormControl>
                 <Input
                   placeholder="School Name"
                   {...field}
-                  value={field.value ?? ''}
                 />
               </FormControl>
               <FormMessage />

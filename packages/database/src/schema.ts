@@ -211,7 +211,7 @@ export type TSchool = InferSelectModel<typeof School>;
 export type NewSchool = InferInsertModel<typeof School>;
 export const CreateSchoolSchema = createInsertSchema(School, {
   organizationName: z.string().min(1).max(256),
-  schoolName: z.string().max(256),
+  name: z.string().min(1).max(256),
   active: z.boolean().optional(),
 }).omit({
   id: true,

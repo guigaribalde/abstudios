@@ -80,6 +80,7 @@ export const SchoolsPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Organization Name</TableHead>
                   <TableHead>School Name</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
@@ -88,7 +89,8 @@ export const SchoolsPage = () => {
               <TableBody>
                 {schools?.map(school => (
                   <TableRow key={school.id}>
-                    <TableCell className="h-12 py-0">{school.schoolName || school.organizationName}</TableCell>
+                    <TableCell className="h-12 py-0">{school.organizationName}</TableCell>
+                    <TableCell className="h-12 py-0">{school.name}</TableCell>
                     <TableCell className="h-12 py-0">
                       <Badge variant={school.active ? 'success' : 'error'}>
                         {school.active ? <Check size={12} /> : <X size={12} />}
