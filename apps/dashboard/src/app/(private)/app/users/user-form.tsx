@@ -17,15 +17,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRightIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import type { TempUserType } from './type';
+import type { UserType } from './type';
 
 type AddUserFormProps = {
-  defaultValues?: TempUserType;
-  onSubmit: (data: TempUserType) => void;
+  defaultValues?: UserType;
+  onSubmit: (data: UserType) => void;
   onCancel: () => void;
 };
 
-const initialValues: TempUserType = {
+const initialValues: UserType = {
   name: '',
   lastName: '',
   email: '',
@@ -40,7 +40,7 @@ export default function UserForm({
   onSubmit,
   onCancel,
 }: AddUserFormProps) {
-  const form = useForm<TempUserType>({
+  const form = useForm<UserType>({
     resolver: zodResolver(CreateUserSchema),
     defaultValues,
   });

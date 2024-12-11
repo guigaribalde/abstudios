@@ -4,10 +4,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
 } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
@@ -16,7 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Check, Edit, Filter, Loader2, Search, Trash, X } from 'lucide-react';
 import { useState } from 'react';
 import EditUserDialog from './edit-user-dialog';
-import type { TempUserType } from './type';
+import type { UserType } from './type';
 
 const mapStatus: Record<string, string> = {
   true: 'Active',
@@ -37,7 +37,7 @@ export default function UsersPage() {
   const [role, setRole] = useState<string>('all');
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data: users, isPending } = useQuery<TempUserType[]>({
+  const { data: users, isPending } = useQuery<UserType[]>({
     queryKey: ['users', debouncedSearch, active, role],
     queryFn: () => {
       const params = new URLSearchParams();

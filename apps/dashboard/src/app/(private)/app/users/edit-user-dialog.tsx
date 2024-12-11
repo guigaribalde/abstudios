@@ -1,26 +1,26 @@
 'use client';
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from '@/components/ui/dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { TempUserType } from './type';
+import type { UserType } from './type';
 import UserForm from './user-form';
 
 type EditUserDialogProps = {
   children: React.ReactNode;
-  user: TempUserType;
+  user: UserType;
 };
 
 export default function EditUserDialog({ children, user }: EditUserDialogProps) {
   const [open, setOpen] = useState(false);
-  async function putUser(data: TempUserType) {
+  async function putUser(data: UserType) {
     const response = await fetch('/api/user', {
       method: 'PUT',
       headers: {
@@ -57,7 +57,7 @@ export default function EditUserDialog({ children, user }: EditUserDialogProps) 
           <DialogTitle>Edit User</DialogTitle>
         </DialogHeader>
         <UserForm
-          onSubmit={async (data: TempUserType) => {
+          onSubmit={async (data: UserType) => {
             await mutation.mutateAsync(data);
           }}
           onCancel={() => {

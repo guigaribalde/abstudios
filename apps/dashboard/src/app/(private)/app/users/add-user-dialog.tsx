@@ -10,7 +10,7 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { TempUserType } from './type';
+import type { UserType } from './type';
 import UserForm from './user-form';
 
 type AddUserDialogProps = {
@@ -19,7 +19,7 @@ type AddUserDialogProps = {
 
 export default function AddUserDialog({ children }: AddUserDialogProps) {
   const [open, setOpen] = useState(false);
-  async function postUser(data: TempUserType) {
+  async function postUser(data: UserType) {
     const response = await fetch('/api/user', {
       method: 'POST',
       headers: {
@@ -56,7 +56,7 @@ export default function AddUserDialog({ children }: AddUserDialogProps) {
           <DialogTitle>Add New User</DialogTitle>
         </DialogHeader>
         <UserForm
-          onSubmit={async (data: TempUserType) => {
+          onSubmit={async (data: UserType) => {
             await mutation.mutateAsync(data);
           }}
           onCancel={() => {
