@@ -1,21 +1,22 @@
 'use client';
 
+import type { TUser } from '@acme/database/schema';
+import type { UserType } from './type';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { UserType } from './type';
 import UserForm from './user-form';
 
 type EditUserDialogProps = {
   children: React.ReactNode;
-  user: UserType;
+  user: TUser;
 };
 
 export default function EditUserDialog({ children, user }: EditUserDialogProps) {
@@ -40,12 +41,39 @@ export default function EditUserDialog({ children, user }: EditUserDialogProps) 
   const mutation = useMutation({
     mutationFn: putUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['edit-user'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('User edited!');
       setOpen(false);
     },
     onError: () => {
       toast.error('Failed to edit user :(');
+    },
+  });
+
+  async function deleteUser() {
+    const response = await fetch(`/api/user/${user.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete user');
+    }
+
+    return response.json();
+  }
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User deleted!');
+      setOpen(false);
+    },
+    onError: () => {
+      toast.error('Failed to delete user :(');
     },
   });
 
@@ -64,6 +92,7 @@ export default function EditUserDialog({ children, user }: EditUserDialogProps) 
             setOpen(false);
           }}
           defaultValues={user}
+          onDelete={deleteMutation.mutate}
         />
       </DialogContent>
     </Dialog>

@@ -233,7 +233,7 @@ export const User = pgTable('user', t => ({
       enum: ['educator', 'admin', 'super-admin'],
     })
     .notNull(),
-  schoolId: t.uuid().notNull().references(() => School.id),
+  schoolId: t.uuid().notNull().references(() => School.id, { onDelete: 'cascade' }),
   active: t.boolean().notNull().default(true),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t

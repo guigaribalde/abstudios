@@ -1,22 +1,23 @@
 'use client';
 
+import type { TUser } from '@acme/database/schema';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
 } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import UserImageEmptyState from '@/lib/assets/empty-states/user-image';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Edit, Filter, Loader2, Search, Trash, X } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import EditUserDialog from './edit-user-dialog';
-import type { UserType } from './type';
 
 const mapStatus: Record<string, string> = {
   true: 'Active',
@@ -37,7 +38,7 @@ export default function UsersPage() {
   const [role, setRole] = useState<string>('all');
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data: users, isPending } = useQuery<UserType[]>({
+  const { data: users, isPending } = useQuery<TUser[]>({
     queryKey: ['users', debouncedSearch, active, role],
     queryFn: () => {
       const params = new URLSearchParams();
@@ -53,6 +54,34 @@ export default function UsersPage() {
       return fetch(`/api/user?${params.toString()}`).then(res => res.json());
     },
 
+  });
+
+  const queryClient = useQueryClient();
+
+  async function deleteUser(id: string) {
+    const response = await fetch(`/api/user/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete user');
+    }
+
+    return response.json();
+  }
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('User deleted!');
+    },
+    onError: () => {
+      toast.error('Failed to delete user :(');
+    },
   });
 
   return (
@@ -102,7 +131,7 @@ export default function UsersPage() {
         </div>
       )}
       {
-        !isPending && users && users.length > 0
+        !isPending && (users && users.length > 0
           ? (
               <Table>
                 <TableHeader>
@@ -136,7 +165,7 @@ export default function UsersPage() {
                             <Edit />
                           </Button>
                         </EditUserDialog>
-                        <Button variant="ghost" size="icon" className="[&_svg]:size-6">
+                        <Button variant="ghost" size="icon" className="[&_svg]:size-6" onClick={() => deleteMutation.mutate(user.id)}>
                           <Trash />
                         </Button>
                       </TableCell>
@@ -153,7 +182,7 @@ export default function UsersPage() {
                   <h3>Add users.</h3>
                 </div>
               </div>
-            )
+            ))
       }
     </div>
   );

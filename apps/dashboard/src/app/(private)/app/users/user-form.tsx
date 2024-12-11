@@ -17,13 +17,14 @@ import { Switch } from '@/components/ui/switch';
 import { CreateUserSchema } from '@acme/database/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRightIcon } from 'lucide-react';
+import { ArrowRightIcon, Trash } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
 type AddUserFormProps = {
   defaultValues?: UserType;
   onSubmit: (data: UserType) => void;
   onCancel: () => void;
+  onDelete?: () => void;
 };
 
 const initialValues: UserType = {
@@ -40,6 +41,7 @@ export default function UserForm({
   defaultValues = initialValues,
   onSubmit,
   onCancel,
+  onDelete,
 }: AddUserFormProps) {
   const form = useForm<UserType>({
     resolver: zodResolver(CreateUserSchema),
@@ -206,21 +208,30 @@ export default function UserForm({
           />
         </div>
 
-        <div className="flex w-full justify-end gap-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
-            onClick={form.handleSubmit(onSubmit)}
-          >
-            Next
-            <ArrowRightIcon />
-          </Button>
+        <div className="flex w-full justify-between gap-6">
+          {!!onDelete && (
+            <Button variant="destructive" onClick={onDelete} type="button">
+              <Trash />
+              {' '}
+              Delete
+            </Button>
+          )}
+          <div className="flex w-full justify-end gap-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={form.handleSubmit(onSubmit)}
+            >
+              Next
+              <ArrowRightIcon />
+            </Button>
+          </div>
         </div>
       </form>
     </Form>

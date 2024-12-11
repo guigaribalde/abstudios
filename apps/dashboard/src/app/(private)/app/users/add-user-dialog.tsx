@@ -1,5 +1,6 @@
 'use client';
 
+import type { UserType } from './type';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,6 @@ import {
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import type { UserType } from './type';
 import UserForm from './user-form';
 
 type AddUserDialogProps = {
@@ -39,7 +39,7 @@ export default function AddUserDialog({ children }: AddUserDialogProps) {
   const mutation = useMutation({
     mutationFn: postUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['create-user'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
       toast.success('User created!');
       setOpen(false);
     },
