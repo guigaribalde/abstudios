@@ -1,5 +1,7 @@
 'use client';
 
+import type { TSchool } from '@acme/database/schema';
+import type { UserType } from './type';
 import { Button } from '@/components/ui/button';
 import { Combobox } from '@/components/ui/combobox';
 import {
@@ -12,13 +14,11 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
-import type { TSchool } from '@acme/database/schema';
 import { CreateUserSchema } from '@acme/database/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRightIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
-import type { UserType } from './type';
 
 type AddUserFormProps = {
   defaultValues?: UserType;
@@ -32,7 +32,7 @@ const initialValues: UserType = {
   email: '',
   role: 'educator',
   phone: '',
-  school: '',
+  schoolId: '',
   active: true,
 };
 
@@ -159,7 +159,7 @@ export default function UserForm({
 
           <FormField
             control={form.control}
-            name="school"
+            name="schoolId"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>School</FormLabel>

@@ -233,7 +233,7 @@ export const User = pgTable('user', t => ({
       enum: ['educator', 'admin', 'super-admin'],
     })
     .notNull(),
-  school: t.uuid().notNull().references(() => School.id),
+  schoolId: t.uuid().notNull().references(() => School.id),
   active: t.boolean().notNull().default(true),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
@@ -252,7 +252,7 @@ export const CreateUserSchema = createInsertSchema(User, {
   authProviderUserId: z.string().min(1).max(2048),
   active: z.boolean(),
   role: z.enum(['educator', 'admin', 'super-admin']),
-  school: z.string(),
+  schoolId: z.string(),
 }).omit({
   id: true,
   createdAt: true,
@@ -261,7 +261,7 @@ export const CreateUserSchema = createInsertSchema(User, {
 export const EditUserSchema = CreateUserSchema;
 export const UserRelations = relations(User, ({ one }) => ({
   schools: one(School, {
-    fields: [User.school],
+    fields: [User.schoolId],
     references: [School.id],
   }),
 }));
