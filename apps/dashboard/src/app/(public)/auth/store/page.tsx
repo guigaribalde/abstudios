@@ -32,7 +32,7 @@ export default async function Page() {
   await db.insert(User).values({
     name: user.firstName || `${user.firstName}`,
     lastName: user.lastName || null,
-    phone: user.phoneNumbers[0].phoneNumber || null,
+    phone: user.phoneNumbers?.[0]?.phoneNumber || null,
     email: user.emailAddresses[0].emailAddress,
     imageUrl: user.imageUrl,
     authProviderUserId: user.id,

@@ -2,7 +2,6 @@
 
 import type { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Combobox } from '@/components/ui/combobox';
 import {
   Form,
   FormControl,
@@ -23,7 +22,7 @@ type AddExampleFormProps = {
 };
 
 const initialValues: z.infer<typeof CreateExampleSchema> = {
-  example: ''
+  example: '',
 };
 
 export default function AddExampleForm({

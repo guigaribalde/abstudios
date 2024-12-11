@@ -27,7 +27,7 @@ type ExtraFormProps = {
 };
 
 const initialValues: ExtraFormType = {
-  tags: [] as unknown as [string]
+  tags: [] as unknown as [string],
 };
 
 export type ExtraFormRef = {
