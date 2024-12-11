@@ -1,8 +1,16 @@
-import { withNextVideo } from "next-video/process";
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
+import { withNextVideo } from 'next-video/process';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'assets.aceternity.com',
+        pathname: '/demos/**',
+      },
+    ],
+  },
 };
 
 export default withNextVideo(nextConfig);

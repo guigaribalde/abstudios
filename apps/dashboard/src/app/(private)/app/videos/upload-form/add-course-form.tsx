@@ -164,7 +164,7 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
                         return [...(old || []), newCourse];
                       });
                       field.onChange(value);
-                      form.setValue('category', '');
+                      form.setValue('category', '' as 'STEM');
                       form.setValue('description', '');
                       form.setValue('seasonNumber', '');
                       form.setValue('sessionNumber', '');

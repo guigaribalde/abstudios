@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import AddCourseForm, { type AddCourseFormRef, type AddCourseFormType } from './add-course-form';
 import AddVideoForm, { type AddVideoFormRef, type AddVideoFormType } from './add-video-form';
+import ExtraForm from './extra-form';
 
 const UploadFormSchema = z.object({
   title: z.string(),
@@ -37,7 +38,7 @@ export default function UploadForm({
 }: UploadFormProps) {
   const [videoForm, setVideoForm] = useState({} as AddVideoFormType);
   const [courseForm, setCourseForm] = useState({} as AddCourseFormType);
-  const [tab, setTab] = useState<'video' | 'course' | 'extra'>('video');
+  const [tab, setTab] = useState<'video' | 'course' | 'extra'>('extra');
   const form = useForm<UploadFormType>({
     resolver: zodResolver(UploadFormSchema),
     defaultValues,
@@ -163,7 +164,11 @@ export default function UploadForm({
               }}
             />
           </TabsContent>
-          <TabsContent value="extra" className="grow">Extra</TabsContent>
+          <TabsContent value="extra" className="grow">
+            <ExtraForm
+              onSubmit={()=>{}}
+            />
+          </TabsContent>
         </Tabs>
       </form>
     </Form>
