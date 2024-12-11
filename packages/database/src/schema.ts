@@ -173,9 +173,10 @@ export const CreateSessionSchema = createInsertSchema(Session, {
 export const Video = pgTable('video', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
 
+  uploadId: t.text().notNull(),
   url: t.varchar({ length: 2048 }).notNull(),
   title: t.varchar({ length: 256 }).notNull(),
-  description: t.text().notNull(),
+  subtitle: t.text().notNull(),
 
   sessionId: t
     .uuid()
@@ -194,12 +195,40 @@ export type NewVideo = InferInsertModel<typeof Video>;
 export const CreateVideoSchema = createInsertSchema(Video, {
   url: z.string().url(),
   title: z.string().min(1).max(256),
-  description: z.string().min(1),
+  subtitle: z.string().min(1),
+  uploadId: z.string().min(1),
 }).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
+
+export const School = pgTable('school', t => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  organizationName: t.varchar({ length: 256 }).notNull(),
+  name: t.varchar({ length: 256 }).notNull(),
+  active: t.boolean().notNull().default(true),
+
+  createdAt: t.timestamp().defaultNow().notNull(),
+  updatedAt: t
+    .timestamp()
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+}));
+
+export type TSchool = InferSelectModel<typeof School>;
+export type NewSchool = InferInsertModel<typeof School>;
+export const CreateSchoolSchema = createInsertSchema(School, {
+  organizationName: z.string().min(1).max(256),
+  name: z.string().min(1).max(256),
+  active: z.boolean().optional(),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const EditSchoolSchema = CreateSchoolSchema;
 
 export const CourseRelations = relations(Course, ({ many }) => ({
   seasons: many(Season),

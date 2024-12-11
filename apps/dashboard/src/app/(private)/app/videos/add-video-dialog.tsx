@@ -20,8 +20,8 @@ export default function AddVideoDialog({ children }: AddVideoDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
+      <DialogContent className="flex h-[600px] max-w-4xl flex-col">
+        <DialogHeader className="flex h-fit">
           <DialogTitle>Add New Video</DialogTitle>
         </DialogHeader>
 

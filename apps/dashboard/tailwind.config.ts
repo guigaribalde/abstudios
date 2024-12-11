@@ -113,6 +113,14 @@ export default withUt({
           'border': 'hsl(var(--sidebar-border))',
           'ring': 'hsl(var(--sidebar-ring))',
         },
+        success: {
+          600: 'hsl(var(--success-600))',
+          background: 'hsl(var(--success-background))',
+        },
+        error: {
+          background: 'hsl(var(--error-background))',
+          800: 'hsl(var(--error-800))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
