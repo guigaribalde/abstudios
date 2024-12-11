@@ -7,25 +7,6 @@ const mux = new Mux({
 
 export async function POST(req: Request) {
   try {
-    // const { url } = await req.json();
-    //
-    // if (!url) {
-    //   return Response.json({ error: 'URL is required' }, { status: 400 });
-    // }
-    //
-    // const asset = await mux.video.assets.create({
-    //   input: [{ url }],
-    //   playback_policy: ['public'],
-    //   video_quality: 'basic',
-    // });
-    //
-    // return new Response(JSON.stringify(asset), {
-    //   status: 201,
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    // });
-
     const formData = await req.formData();
     const file = formData.get('file') as File;
 
@@ -33,10 +14,9 @@ export async function POST(req: Request) {
       return Response.json({ error: 'File is required' }, { status: 400 });
     }
 
-    // Get the file buffer
+    // eslint-disable-next-line node/prefer-global/buffer
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Create a direct upload URL
     const upload = await mux.video.uploads.create({
       new_asset_settings: {
         playback_policy: ['public'],
@@ -45,7 +25,6 @@ export async function POST(req: Request) {
       cors_origin: '*',
     });
 
-    // Upload the file to the direct upload URL
     await fetch(upload.url, {
       method: 'PUT',
       body: buffer,

@@ -7,25 +7,25 @@ import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { BookText, CalendarDays, Video } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import AddCourseForm from './add-course-form';
-import AddVideoForm from './add-video-form';
+import AddCourseForm, { type AddCourseFormRef, type AddCourseFormType } from './add-course-form';
+import AddVideoForm, { type AddVideoFormRef, type AddVideoFormType } from './add-video-form';
 
-const AddVideoFormSchema = z.object({
+const UploadFormSchema = z.object({
   title: z.string(),
   subtitle: z.string(),
   email: z.string().email(),
 });
 
-type AddVideoFormType = z.infer<typeof AddVideoFormSchema>;
-type AddVideoFormProps = {
-  defaultValues?: AddVideoFormType;
-  onSubmit: (data: AddVideoFormType) => void;
+type UploadFormType = z.infer<typeof UploadFormSchema>;
+type UploadFormProps = {
+  defaultValues?: UploadFormType;
+  onSubmit: (data: UploadFormType) => void;
 };
 
-const initialValues: AddVideoFormType = {
+const initialValues: UploadFormType = {
   title: '',
   subtitle: '',
   email: '',
@@ -34,20 +34,48 @@ const initialValues: AddVideoFormType = {
 export default function UploadForm({
   defaultValues = initialValues,
   onSubmit,
-}: AddVideoFormProps) {
-  const [tab, setTab] = useState('video');
-  const form = useForm<AddVideoFormType>({
-    resolver: zodResolver(AddVideoFormSchema),
+}: UploadFormProps) {
+  const [videoForm, setVideoForm] = useState({} as AddVideoFormType);
+  const [courseForm, setCourseForm] = useState({} as AddCourseFormType);
+  const [tab, setTab] = useState<'video' | 'course' | 'extra'>('video');
+  const form = useForm<UploadFormType>({
+    resolver: zodResolver(UploadFormSchema),
     defaultValues,
   });
+
+  const videoFormRef = useRef<AddVideoFormRef>(null);
+  const courseFormRef = useRef<AddCourseFormRef>(null);
+  async function saveCurrentTab() {
+    if (tab === 'video') {
+      const isVideoFormValid = await videoFormRef.current?.valid();
+      if (!isVideoFormValid) {
+        videoFormRef.current?.submit();
+        return false;
+      }
+      const values = videoFormRef.current?.values();
+      setVideoForm(values!);
+    }
+
+    if (tab === 'course') {
+      const isCourseFormValid = await courseFormRef.current?.valid();
+      if (!isCourseFormValid) {
+        courseFormRef.current?.submit();
+        return false;
+      }
+      const values = courseFormRef.current?.values();
+      setCourseForm(values!);
+    }
+
+    return true;
+  }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex w-full flex-col items-start gap-4"
+        className="flex size-full flex-col items-start gap-4"
       >
-        <Tabs value={tab} defaultValue="video" className="w-full">
+        <Tabs value={tab} defaultValue="video" className="flex size-full flex-col">
           <TabsList className="m-0 h-fit w-full bg-transparent p-0 text-neutral-900">
             <button
               className={
@@ -57,7 +85,11 @@ export default function UploadForm({
                 )
               }
               type="button"
-              onClick={() => {
+              onClick={async () => {
+                const saved = await saveCurrentTab();
+                if (!saved) {
+                  return;
+                }
                 setTab('video');
               }}
             >
@@ -67,6 +99,7 @@ export default function UploadForm({
               </span>
             </button>
             <button
+              // disabled={!videoForm.uploadId}
               className={
                 cn(
                   'flex w-full items-center gap-2 border-b-2 border-solid p-3 rounded-t-md disabled:opacity-50 disabled:cursor-not-allowed',
@@ -74,7 +107,11 @@ export default function UploadForm({
                 )
               }
               type="button"
-              onClick={() => {
+              onClick={async () => {
+                const saved = await saveCurrentTab();
+                if (!saved) {
+                  return;
+                }
                 setTab('course');
               }}
             >
@@ -84,6 +121,7 @@ export default function UploadForm({
               </span>
             </button>
             <button
+              disabled
               className={
                 cn(
                   'flex w-full items-center gap-2 border-b-2 border-solid p-3 rounded-t-m disabled:opacity-50 disabled:cursor-not-allowed',
@@ -91,7 +129,11 @@ export default function UploadForm({
                 )
               }
               type="button"
-              onClick={() => {
+              onClick={async () => {
+                const saved = await saveCurrentTab();
+                if (!saved) {
+                  return;
+                }
                 setTab('extra');
               }}
             >
@@ -101,29 +143,27 @@ export default function UploadForm({
               </span>
             </button>
           </TabsList>
-          <TabsContent value="video">
-            <AddVideoForm onSubmit={async (data) => {
-              const res = await fetch('/api/video', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ url: data.url }),
-              });
-
-              if (!res.ok) {
-                throw new Error('Failed to create video');
-              }
-
-              const result = await res.json();
-              console.log('Video created:', result);
-            }}
+          <TabsContent value="video" className="grow">
+            <AddVideoForm
+              ref={videoFormRef}
+              defaultValues={videoForm}
+              onSubmit={(data) => {
+                setVideoForm(data);
+                setTab('course');
+              }}
             />
           </TabsContent>
-          <TabsContent value="course" className="flex flex-col gap-8">
-            <AddCourseForm onSubmit={() => {}} />
+          <TabsContent value="course" className="grow">
+            <AddCourseForm
+              ref={courseFormRef}
+              defaultValues={courseForm}
+              onSubmit={(data) => {
+                setCourseForm(data);
+                setTab('extra');
+              }}
+            />
           </TabsContent>
-          <TabsContent value="extra">Extra</TabsContent>
+          <TabsContent value="extra" className="grow">Extra</TabsContent>
         </Tabs>
       </form>
     </Form>

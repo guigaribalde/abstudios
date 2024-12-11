@@ -165,9 +165,10 @@ export const CreateSessionSchema = createInsertSchema(Session, {
 export const Video = pgTable('video', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
 
+  uploadId: t.text().notNull(),
   url: t.varchar({ length: 2048 }).notNull(),
   title: t.varchar({ length: 256 }).notNull(),
-  description: t.text().notNull(),
+  subtitle: t.text().notNull(),
 
   sessionId: t
     .uuid()
@@ -186,7 +187,8 @@ export type NewVideo = InferInsertModel<typeof Video>;
 export const CreateVideoSchema = createInsertSchema(Video, {
   url: z.string().url(),
   title: z.string().min(1).max(256),
-  description: z.string().min(1),
+  subtitle: z.string().min(1),
+  uploadId: z.string().min(1),
 }).omit({
   id: true,
   createdAt: true,

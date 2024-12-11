@@ -1,8 +1,7 @@
 'use client';
 
-import type { z } from 'zod';
+import VideoUploader from '@/components/mux/video-uploader';
 import { Button } from '@/components/ui/button';
-import { FileUploader } from '@/components/ui/file-uploader';
 import {
   Form,
   FormControl,
@@ -12,16 +11,20 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { CreateVideoSchema } from '@acme/database/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import MuxPlayer from '@mux/mux-player-react';
-import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
-import { v4 } from 'uuid';
+import { z } from 'zod';
 
-type AddVideoFormType = z.infer<typeof CreateVideoSchema>;
+const AddVideoSchema = z.object({
+  url: z.string().url().min(1, 'Upload a file is required'),
+  title: z.string().min(1),
+  subtitle: z.string().min(1),
+  uploadId: z.string().min(1, 'Upload a file is required'),
+});
+
+export type AddVideoFormType = z.infer<typeof AddVideoSchema>;
 type AddVideoFormProps = {
   defaultValues?: AddVideoFormType;
   onSubmit: (data: AddVideoFormType) => void;
@@ -30,52 +33,48 @@ type AddVideoFormProps = {
 const initialValues: AddVideoFormType = {
   url: '',
   title: '',
-  description: '',
-  sessionId: v4(),
+  subtitle: '',
+  uploadId: '',
 };
 
-export default function AddVideoForm({
+export type AddVideoFormRef = {
+  values: () => AddVideoFormType;
+  valid: () => Promise<boolean>;
+  submit: () => void;
+};
+
+const AddVideoForm = forwardRef<AddVideoFormRef, AddVideoFormProps>(({
   defaultValues = initialValues,
   onSubmit,
-}: AddVideoFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+}, ref) => {
   const form = useForm<AddVideoFormType>({
-    resolver: zodResolver(CreateVideoSchema),
+    mode: 'onChange',
+    resolver: zodResolver(AddVideoSchema),
     defaultValues,
   });
-  const [uploadId, setUploadId] = useState('');
-  const [assetId, setAssetId] = useState('');
 
-  const { data: uploadStatus } = useQuery({
-    queryKey: ['upload', uploadId],
-    queryFn: async () => {
-      if (!uploadId) {
-        return null;
-      }
-      const response = await fetch(`/api/video/upload?id=${uploadId}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch upload status');
-      }
-      const res = await response.json();
-      console.log(res);
-      if (res.asset_id) {
-        setAssetId(res.asset_id);
-        setIsLoading(false);
-      }
-      return res;
+  useImperativeHandle(ref, () => ({
+    values: () => {
+      return form.getValues();
     },
-    enabled: !!uploadId && !assetId.length,
-    refetchInterval: 1000, // Poll every 1 second
-    refetchIntervalInBackground: false,
-  });
+    valid: async () => {
+      const { errors } = await form.control._executeSchema(Object.keys(initialValues));
+      const valid = Object.keys(errors).length === 0;
+      return valid;
+      // return form.formState.isValid;
+    },
+    submit: () => {
+      form.handleSubmit(onSubmit)();
+    },
+  }));
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex w-full flex-col gap-8"
+        className="flex size-full flex-col justify-between"
       >
-        <div className="flex w-full gap-8">
+        <div className="mt-2 flex w-full gap-8">
           <div className="flex w-full flex-col gap-3">
             <FormField
               control={form.control}
@@ -94,7 +93,7 @@ export default function AddVideoForm({
 
             <FormField
               control={form.control}
-              name="description"
+              name="subtitle"
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormLabel>Subtitle</FormLabel>
@@ -108,53 +107,14 @@ export default function AddVideoForm({
             />
 
           </div>
-          {isLoading
-            ? (
-                <div className="flex h-52 w-full items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 ">
-                  <Loader2 className="animate-spin text-primary" />
-                </div>
-              )
-            : assetId
-              ? (
-
-                  <MuxPlayer
-                    streamType="on-demand"
-                    playbackId={assetId}
-                    metadataVideoTitle="Placeholder (optional)"
-                    metadataViewerUserId="Placeholder (optional)"
-                    primaryColor="#FFFFFF"
-                    secondaryColor="#000000"
-                    accentColor="#1B70B5"
-                  />
-                )
-              : (
-                  <FileUploader
-                    className="w-full"
-                    maxSize={1024 * 1024 * 512}
-                    onValueChange={async (data) => {
-                      setIsLoading(true);
-                      const formData = new FormData();
-                      formData.append('file', data[0]);
-
-                      try {
-                        const response = await fetch('/api/video/upload', {
-                          method: 'POST',
-                          body: formData,
-                        });
-
-                        if (!response.ok) {
-                          throw new Error('Failed to upload video');
-                        }
-
-                        const result = await response.json();
-                        setUploadId(result.id);
-                        console.log('Video uploaded:', result);
-                      } catch (error) {
-                        console.error('Error uploading video:', error);
-                      }
-                    }}
-                  />
-                )}
+          <VideoUploader
+            forceComplete={Boolean(form.watch('url') && form.watch('uploadId'))}
+            error={form.formState.errors.uploadId?.message || form.formState.errors.url?.message}
+            onComplete={(data) => {
+              form.setValue('uploadId', data.id);
+              form.setValue('url', data.url);
+            }}
+          />
         </div>
 
         <div className="flex w-full justify-end gap-3">
@@ -168,7 +128,6 @@ export default function AddVideoForm({
           <Button
             type="button"
             onClick={form.handleSubmit(onSubmit)}
-            disabled={!form.formState.isValid}
           >
             Next
             <ArrowRight />
@@ -177,4 +136,7 @@ export default function AddVideoForm({
       </form>
     </Form>
   );
-}
+},
+);
+
+export default AddVideoForm;
