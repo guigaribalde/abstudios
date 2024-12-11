@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import type { TSchool } from '@acme/database/schema';
 import { CreateUserSchema } from '@acme/database/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
@@ -45,7 +46,7 @@ export default function UserForm({
     defaultValues,
   });
 
-  const { data: schools, isPending } = useQuery<TSchool[]>({
+  const { data: schools } = useQuery<TSchool[]>({
     queryKey: ['schools-combobox'],
     queryFn: async () => {
       const response = await fetch(`/api/school`);
@@ -83,7 +84,7 @@ export default function UserForm({
                 <FormLabel>Last Name</FormLabel>
 
                 <FormControl>
-                  <Input placeholder="Placeholder Text" type="text" {...field} />
+                  <Input placeholder="Placeholder Text" type="text" {...field} value={field.value ?? ''} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -118,12 +119,11 @@ export default function UserForm({
                   <Combobox
                     value={field.value}
                     list={
-                      schools?.map((schools) => {
-                        return {
-                          value: schools.id,
-                          label: schools.name,
-                        };
-                      }) ?? []
+                      [
+                        { value: 'educator', label: 'Educator' },
+                        { value: 'admin', label: 'Admin' },
+                        { value: 'super-admin', label: 'Super Admin' },
+                      ]
                     }
                     onChange={field.onChange}
                     placeholder="Select course..."
@@ -145,7 +145,12 @@ export default function UserForm({
                 <FormLabel>Phone</FormLabel>
 
                 <FormControl>
-                  <Input placeholder="Placeholder Text" type="text" {...field} />
+                  <Input
+                    placeholder="Placeholder Text"
+                    type="text"
+                    {...field}
+                    value={field.value ?? ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -162,14 +167,17 @@ export default function UserForm({
                 <FormControl>
                   <Combobox
                     value={field.value!}
-                    list={[
-                      { value: 'educator', label: 'Educator' },
-                      { value: 'admin', label: 'Admin' },
-                      { value: 'super-admin', label: 'Super Admin' },
-                    ]}
+                    list={
+                      schools?.map((schools) => {
+                        return {
+                          value: schools.id,
+                          label: schools.name,
+                        };
+                      })
+                      ?? []
+                    }
                     onChange={field.onChange}
                     placeholder="Select School..."
-                    // value={field.value}
                   />
                 </FormControl>
                 <FormMessage />
@@ -188,7 +196,8 @@ export default function UserForm({
 
                 <FormControl>
                   <Switch
-                    {...field}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
                   />
                 </FormControl>
                 <FormMessage />
