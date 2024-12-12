@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/u
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import ShipmentsEmptyState from '@/lib/assets/empty-states/shipments';
-import type { TShipment } from '@acme/database/schema';
+import type { ShipmentWithSchool } from '@acme/database/schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Edit, Filter, Search, Trash } from 'lucide-react';
@@ -29,7 +29,7 @@ export default function ShipmentsPage() {
 
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data: shipments, isPending } = useQuery<TShipment[]>({
+  const { data: shipments, isPending } = useQuery<ShipmentWithSchool[]>({
     queryKey: ['shipment', debouncedSearch, active],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -121,7 +121,7 @@ export default function ShipmentsPage() {
                   {shipments?.map(shipment => (
                     <TableRow key={shipment.id}>
                       <TableCell>
-                        {shipment.schoolId}
+                        {shipment.school.name}
                       </TableCell>
                       <TableCell>{shipment.address}</TableCell>
                       <TableCell>{shipment.phone}</TableCell>
