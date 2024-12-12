@@ -120,7 +120,7 @@ export default function AddShipmentForm({
           />
           <FormField
             control={form.control}
-            name="address"
+            name="phone"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormLabel>Phone Number</FormLabel>
