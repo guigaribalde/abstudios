@@ -20,7 +20,7 @@ const mapStatus: Record<string, string> = {
   shipped: 'Shipped',
   delivered: 'Delivered',
   cancelled: 'Cancelled',
-  all: 'All Statuses',
+  all: 'All Status',
 };
 
 export default function ShipmentsPage() {
