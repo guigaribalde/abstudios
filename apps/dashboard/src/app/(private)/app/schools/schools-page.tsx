@@ -89,7 +89,7 @@ export const SchoolsPage = () => {
               <TableBody>
                 {schools?.map(school => (
                   <TableRow key={school.id}>
-                    <TableCell className="h-12 py-0">{school.organization?.name}</TableCell>
+                    <TableCell className="h-12 py-0">{school.organization?.name ?? school.name}</TableCell>
                     <TableCell className="h-12 py-0">{school.name}</TableCell>
                     <TableCell className="h-12 py-0">
                       <Badge variant={school.active ? 'success' : 'error'}>

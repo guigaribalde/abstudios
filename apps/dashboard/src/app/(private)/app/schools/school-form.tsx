@@ -71,7 +71,7 @@ export default function SchoolForm({
                   placeholder="Select Organization"
                   value={field.value}
                   onChange={field.onChange}
-                  list={organizations?.map(org => ({
+                  list={organizations?.map?.(org => ({
                     label: org.name,
                     value: org.id,
                   })) ?? []}
