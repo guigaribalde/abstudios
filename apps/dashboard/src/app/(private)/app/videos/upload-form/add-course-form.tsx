@@ -6,21 +6,22 @@ import { Combobox } from '@/components/ui/combobox';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { TagsInput } from '@/components/ui/tag-input';
 import { Textarea } from '@/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowRight } from 'lucide-react';
 import { forwardRef, useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const AddCourseFormSchema = z.object({
+export const AddCourseFormSchema = z.object({
   courseId: z.string().min(1, 'Course is required'),
   category: z.enum([
     'STEM',
@@ -33,6 +34,7 @@ const AddCourseFormSchema = z.object({
   seasonNumber: z.string().min(1, 'Season is required'),
   sessionNumber: z.string().min(1, 'Session is required'),
   description: z.string().min(1, 'A description is required'),
+  tags: z.array(z.string()).nonempty('Add at least one tag.'),
 });
 
 type Item = {
@@ -44,6 +46,7 @@ export type AddCourseFormType = z.infer<typeof AddCourseFormSchema>;
 type AddCourseFormProps = {
   defaultValues?: AddCourseFormType;
   onSubmit: (data: AddCourseFormType) => void;
+  onCancel: () => void;
 };
 
 const initialValues: AddCourseFormType = {
@@ -52,6 +55,7 @@ const initialValues: AddCourseFormType = {
   seasonNumber: '',
   sessionNumber: '',
   description: '',
+  tags: [] as unknown as [string],
 };
 
 export type AddCourseFormRef = {
@@ -63,6 +67,7 @@ export type AddCourseFormRef = {
 const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
   defaultValues = initialValues,
   onSubmit,
+  onCancel,
 }, ref) => {
   const form = useForm<AddCourseFormType>({
     mode: 'onChange',
@@ -150,6 +155,7 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
                       }
                       form.setValue('category', currentCourse.category);
                       form.setValue('description', currentCourse.description);
+                      form.setValue('tags', currentCourse.tags as [string]);
                     }}
                     onCreate={(value) => {
                       queryClient.setQueryData(['courses'], (old: (TCourse & Item)[] | undefined) => {
@@ -168,6 +174,7 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
                       form.setValue('description', '');
                       form.setValue('seasonNumber', '');
                       form.setValue('sessionNumber', '');
+                      form.setValue('tags', [] as unknown as [string]);
                     }}
                     placeholder="Select course..."
                   />
@@ -238,6 +245,27 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
               />
             </div>
           </div>
+
+          <FormField
+            control={form.control}
+            name="tags"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormLabel>Tags</FormLabel>
+
+                <FormControl>
+                  <TagsInput
+                    disabled={!isNewCourse}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder="Tags..."
+                  />
+                </FormControl>
+                <FormDescription>Press 'Enter' to add a new tag</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <div>
             <FormField
               control={form.control}
@@ -261,10 +289,10 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
             />
           </div>
         </div>
-        <div className="flex w-full justify-end gap-3">
+        <div className="mt-3 flex w-full justify-end gap-3">
           <Button
             type="button"
-            onClick={form.handleSubmit(onSubmit)}
+            onClick={onCancel}
             variant="outline"
           >
             Cancel
@@ -273,8 +301,7 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
             type="button"
             onClick={form.handleSubmit(onSubmit)}
           >
-            Next
-            <ArrowRight />
+            Save
           </Button>
         </div>
 

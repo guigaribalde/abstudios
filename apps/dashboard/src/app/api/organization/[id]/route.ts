@@ -1,11 +1,11 @@
 import { db, eq } from '@acme/database/client';
-import { EditSchoolSchema, School } from '@acme/database/schema';
+import { EditOrganizationSchema, Organization } from '@acme/database/schema';
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const schoolId = (await params).id;
+    const organizationId = (await params).id;
     const body = await req.json();
-    const validatedData = EditSchoolSchema.safeParse(body);
+    const validatedData = EditOrganizationSchema.safeParse(body);
 
     if (!validatedData.success) {
       return new Response(JSON.stringify({ error: 'Validation error' }), {
@@ -16,22 +16,22 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
       });
     }
 
-    const school = await db
-      .update(School)
+    const organization = await db
+      .update(Organization)
       .set(validatedData.data)
-      .where(eq(School.id, schoolId));
+      .where(eq(Organization.id, organizationId));
 
-    return new Response(JSON.stringify(school), {
+    return new Response(JSON.stringify(organization), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
       },
     });
   } catch (error) {
-    console.error('Error updating school:', error);
+    console.error('Error updating organization:', error);
     return new Response(
       JSON.stringify({
-        error: 'Failed to update school',
+        error: 'Failed to update organization',
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       }),
@@ -47,14 +47,14 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const schoolId = (await params).id;
-    const school = await db.delete(School).where(eq(School.id, schoolId));
-    return new Response(JSON.stringify(school), { status: 200 });
+    const organizationId = (await params).id;
+    const organization = await db.delete(Organization).where(eq(Organization.id, organizationId));
+    return new Response(JSON.stringify(organization), { status: 200 });
   } catch (error) {
-    console.error('Error deleting school:', error);
+    console.error('Error deleting organization:', error);
     return new Response(
       JSON.stringify({
-        error: 'Failed to delete school',
+        error: 'Failed to delete organization',
         message:
           error instanceof Error ? error.message : 'Unknown error occurred',
       }),

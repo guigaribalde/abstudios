@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import * as React from 'react';
 
 type ComboboxProps = {
@@ -27,6 +27,7 @@ type ComboboxProps = {
   buttonClassName?: string;
   disabled?: boolean;
   onCreate?: (value: string) => void;
+  loading?: boolean;
 };
 
 export function Combobox(props: ComboboxProps) {
@@ -46,7 +47,7 @@ export function Combobox(props: ComboboxProps) {
           {props.value
             ? props.list.find(item => item.value === props.value)?.label
             : props.placeholder ?? 'Select...'}
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+          {props.loading ? <Loader2 className="ml-auto size-4 animate-spin" /> : <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="popover-content-width-same-as-its-trigger p-0">
@@ -125,6 +126,14 @@ export function Combobox(props: ComboboxProps) {
                           </button>
                         )
                       : null
+                  )
+                : null}
+              {props.loading
+                ? (
+                    <CommandItem>
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                      Loading...
+                    </CommandItem>
                   )
                 : null}
               {props.list.map(item => (
