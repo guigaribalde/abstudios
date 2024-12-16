@@ -163,9 +163,8 @@ export const CreateVideoSchema = createInsertSchema(Video, {
   updatedAt: true,
 });
 
-export const School = pgTable('school', t => ({
+export const Organization = pgTable('organization', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
-  organizationName: t.varchar({ length: 256 }).notNull(),
   name: t.varchar({ length: 256 }).notNull(),
   active: t.boolean().notNull().default(true),
 
@@ -177,12 +176,42 @@ export const School = pgTable('school', t => ({
     .$onUpdateFn(() => new Date()),
 }));
 
-export type TSchool = InferSelectModel<typeof School>;
-export type NewSchool = InferInsertModel<typeof School>;
-export const CreateSchoolSchema = createInsertSchema(School, {
-  organizationName: z.string().min(1).max(256),
+export type TOrganization = InferSelectModel<typeof Organization>;
+export type NewOrganization = InferInsertModel<typeof Organization>;
+export const CreateOrganizationSchema = createInsertSchema(Organization, {
   name: z.string().min(1).max(256),
   active: z.boolean().optional(),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export const EditOrganizationSchema = CreateOrganizationSchema;
+
+export const School = pgTable('school', t => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  name: t.varchar({ length: 256 }).notNull(),
+  active: t.boolean().notNull().default(true),
+  organizationId: t
+    .uuid()
+    .notNull()
+    .references(() => Organization.id, { onDelete: 'cascade' }),
+
+  createdAt: t.timestamp().defaultNow().notNull(),
+  updatedAt: t
+    .timestamp()
+    .notNull()
+    .defaultNow()
+    .$onUpdateFn(() => new Date()),
+}));
+
+export type TSchool = InferSelectModel<typeof School>;
+export type TSchoolWithOrganization = TSchool & { organization: TOrganization };
+export type NewSchool = InferInsertModel<typeof School>;
+export const CreateSchoolSchema = createInsertSchema(School, {
+  name: z.string().min(1).max(256),
+  active: z.boolean().optional(),
+  organizationId: z.string().uuid(),
 }).omit({
   id: true,
   createdAt: true,
@@ -266,4 +295,15 @@ export const UserRelations = relations(User, ({ one }) => ({
     references: [School.id],
   }),
 }));
-export const SchoolRelations = relations(School, ({ many }) => ({ users: many(User) }));
+
+export const OrganizationRelations = relations(Organization, ({ many }) => ({
+  schools: many(School),
+}));
+
+export const SchoolRelations = relations(School, ({ one, many }) => ({
+  organization: one(Organization, {
+    fields: [School.organizationId],
+    references: [Organization.id],
+  }),
+  users: many(User),
+}));

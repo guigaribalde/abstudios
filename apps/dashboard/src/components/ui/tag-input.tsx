@@ -211,9 +211,9 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
             break;
 
           case 'Escape':
-            const newIndex = activeIndex === -1 ? value.length - 1 : -1;
+          { const newIndex = activeIndex === -1 ? value.length - 1 : -1;
             setActiveIndex(newIndex);
-            break;
+            break; }
 
           case 'Enter':
             if (inputValue.trim() !== '') {
@@ -239,17 +239,17 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
       [],
     );
 
+    const contextValue = React.useMemo(() => ({
+      value,
+      onValueChange,
+      inputValue,
+      setInputValue,
+      activeIndex,
+      setActiveIndex,
+    }), [value, onValueChange, inputValue, activeIndex]);
+
     return (
-      <TagInputContext.Provider
-        value={{
-          value,
-          onValueChange,
-          inputValue,
-          setInputValue,
-          activeIndex,
-          setActiveIndex,
-        }}
-      >
+      <TagInputContext.Provider value={contextValue}>
         <div
           {...props}
           ref={ref}
