@@ -93,7 +93,6 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
     queryFn: async () => {
       const response = await fetch('/api/course');
       const data = await response.json();
-      console.log({ data });
       const courses = data.map((course: TCourse) => ({
         ...course,
         label: course.title,
