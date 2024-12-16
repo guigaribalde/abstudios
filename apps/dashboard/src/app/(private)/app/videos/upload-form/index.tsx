@@ -123,7 +123,7 @@ export default function UploadForm({
             onSubmit={(data) => {
               setCourseForm(data);
               onSubmit({
-                course: courseForm,
+                course: data,
                 video: videoForm,
               });
             }}
