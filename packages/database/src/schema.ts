@@ -134,6 +134,7 @@ export const Video = pgTable('video', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
 
   uploadId: t.text().notNull(),
+  playbackId: t.text(),
   url: t.varchar({ length: 2048 }).notNull(),
   title: t.varchar({ length: 256 }).notNull(),
   subtitle: t.text().notNull(),
@@ -157,6 +158,7 @@ export const CreateVideoSchema = createInsertSchema(Video, {
   title: z.string().min(1).max(256),
   subtitle: z.string().min(1),
   uploadId: z.string().min(1),
+  playbackId: z.string(),
 }).omit({
   id: true,
   createdAt: true,

@@ -17,7 +17,7 @@ import { forwardRef, useImperativeHandle } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const AddVideoSchema = z.object({
+export const AddVideoSchema = z.object({
   url: z.string().url().min(1, 'Upload a file is required'),
   title: z.string().min(1),
   subtitle: z.string().min(1),
@@ -28,6 +28,7 @@ export type AddVideoFormType = z.infer<typeof AddVideoSchema>;
 type AddVideoFormProps = {
   defaultValues?: AddVideoFormType;
   onSubmit: (data: AddVideoFormType) => void;
+  onCancel: () => void;
 };
 
 const initialValues: AddVideoFormType = {
@@ -46,6 +47,7 @@ export type AddVideoFormRef = {
 const AddVideoForm = forwardRef<AddVideoFormRef, AddVideoFormProps>(({
   defaultValues = initialValues,
   onSubmit,
+  onCancel,
 }, ref) => {
   const form = useForm<AddVideoFormType>({
     mode: 'onChange',
@@ -117,10 +119,10 @@ const AddVideoForm = forwardRef<AddVideoFormRef, AddVideoFormProps>(({
           />
         </div>
 
-        <div className="flex w-full justify-end gap-3">
+        <div className="mt-3 flex w-full justify-end gap-3">
           <Button
             type="button"
-            onClick={form.handleSubmit(onSubmit)}
+            onClick={onCancel}
             variant="outline"
           >
             Cancel
