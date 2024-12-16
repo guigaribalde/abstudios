@@ -2,19 +2,19 @@
 
 import type { TCourse, TSeason, TSession, TVideo } from '@acme/database/schema';
 import { Button } from '@/components/ui/button';
+import VideoGrid, { type Item } from '@/components/video-grid/grid';
 import UploadImageEmptyState from '@/lib/assets/empty-states/upload-image';
 import { useQuery } from '@tanstack/react-query';
 import { Plus } from 'lucide-react';
-import AddVideoDialog from './add-video-dialog';
-import Grid, { type Item } from '@/components/video-grid/grid';
 import { useRouter } from 'next/navigation';
+import AddVideoDialog from './add-video-dialog';
 
 type Video = {
-  video: TVideo
-  session: TSession,
-  season: TSeason,
-  course: TCourse
-}
+  video: TVideo;
+  session: TSession;
+  season: TSeason;
+  course: TCourse;
+};
 
 export default function Page() {
   const router = useRouter();
@@ -33,9 +33,9 @@ export default function Page() {
         thumbnail: `https://image.mux.com/${String(item.video.playbackId)}/thumbnail.png`,
         tags: item.course.tags,
         category: item.course.category,
-        createdAt: item.video.createdAt
-      }))
-      return videos
+        createdAt: item.video.createdAt,
+      }));
+      return videos;
     },
   });
   return (
@@ -53,19 +53,22 @@ export default function Page() {
       <div className="px-12">
         {videos.length === 0
           ? (
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="flex flex-col items-center justify-center">
-                <UploadImageEmptyState />
-                <h2 className="text-2xl font-bold">It looks empty in here.</h2>
-                <h3>Start uploading videos.</h3>
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="flex flex-col items-center justify-center">
+                  <UploadImageEmptyState />
+                  <h2 className="text-2xl font-bold">It looks empty in here.</h2>
+                  <h3>Start uploading videos.</h3>
+                </div>
               </div>
-            </div>
-          )
+            )
           : (
-            <Grid itens={videos} onPlay={(id)=>{
-              router.push(`/app/videos/${id}`)
-            }} />
-          )}
+              <VideoGrid
+                itens={videos}
+                onPlay={(id) => {
+                  router.push(`/app/videos/${id}`);
+                }}
+              />
+            )}
       </div>
     </div>
   );

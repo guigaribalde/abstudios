@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     const { video, course } = body as { video: AddVideoFormType; course: AddCourseFormType };
 
     const uuidSchema = z.string().uuid();
-    const isUUID = uuidSchema.safeParse(course.courseId).success;
+    const isUUID = uuidSchema.safeParse(course?.courseId).success;
     const createdVideo = await db.transaction(async (tx) => {
       let currentCourse: TCourse[] = [];
       if (isUUID) {
@@ -83,12 +83,7 @@ export async function POST(req: Request) {
 
       // TODO: from this point we need to delete episodes with the same number if they exist
       // in the future, when deleting the episode, we need also to remove from mux
-      await tx.delete(Session).where(
-        and(
-          eq(Session.number, Number(course.sessionNumber)),
-          eq(Session.seasonId, currentSeason[0].id),
-        ),
-      );
+
       const currentSession = await tx.insert(Session).values({
         seasonId: currentSeason[0].id,
         number: Number(course.sessionNumber),
@@ -117,6 +112,7 @@ export async function POST(req: Request) {
       },
     });
   } catch (error) {
+    console.error(error);
     return new Response(
       JSON.stringify({
         error: 'Failed to create video',

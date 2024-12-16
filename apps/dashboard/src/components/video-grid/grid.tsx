@@ -2,43 +2,10 @@
 import { Button } from '@/components/ui/button';
 import { useOutsideClick } from '@/hooks/use-outside-click';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Play, PlayCircle } from 'lucide-react';
+import { Play, PlayCircle, X } from 'lucide-react';
 import Image from 'next/image';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { Badge } from '../ui/badge';
-
-const CloseIcon = () => {
-  return (
-    <motion.svg
-      initial={{
-        opacity: 0,
-      }}
-      animate={{
-        opacity: 1,
-      }}
-      exit={{
-        opacity: 0,
-        transition: {
-          duration: 0.05,
-        },
-      }}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="size-4 text-black"
-    >
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M18 6l-12 12" />
-      <path d="M6 6l12 12" />
-    </motion.svg>
-  );
-};
 
 export type Item = {
   thumbnail: string;
@@ -53,12 +20,12 @@ export type Item = {
   createdAt: Date;
 };
 
-type GridProps = {
+type VideoGridProps = {
   itens: Item[];
   onPlay: (playbackId: string) => void;
 };
 
-export default function Grid(props: GridProps) {
+export default function VideoGrid(props: VideoGridProps) {
   const [active, setActive] = useState<Item | null>(null);
   const id = useId();
   const ref = useRef<HTMLDivElement>(null);
@@ -98,31 +65,21 @@ export default function Grid(props: GridProps) {
         {active && typeof active === 'object'
           ? (
               <div className="fixed inset-0  z-[100] grid place-items-center">
-                <motion.button
-                  key={`button-${active.title}-${id}`}
-                  layout
-                  initial={{
-                    opacity: 0,
-                  }}
-                  animate={{
-                    opacity: 1,
-                  }}
-                  exit={{
-                    opacity: 0,
-                    transition: {
-                      duration: 0.05,
-                    },
-                  }}
-                  className="absolute right-2 top-2 flex size-6 items-center justify-center rounded-full bg-white lg:hidden"
-                  onClick={() => setActive(null)}
-                >
-                  <CloseIcon />
-                </motion.button>
+
                 <motion.div
                   layoutId={`card-${active.title}-${id}`}
                   ref={ref}
-                  className="flex size-full  max-w-[850px] flex-col overflow-hidden  rounded-md  bg-white md:h-fit md:max-h-[90%]"
+                  className="relative flex size-full max-w-[850px] flex-col overflow-auto rounded-md bg-white md:h-fit md:max-h-[90%]"
                 >
+
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="absolute right-2 top-2 z-30 flex size-6 items-center justify-center rounded-full border border-white bg-black hover:bg-black"
+                    onClick={() => setActive(null)}
+                  >
+                    <X className="size-5 text-white" />
+                  </Button>
                   <motion.div className="relative flex aspect-video" layoutId={`image-${active.title}-${id}`}>
                     <div className="z-10 size-full bg-gray-400">
                       <Image
@@ -134,6 +91,7 @@ export default function Grid(props: GridProps) {
                       />
                       <div className="absolute size-full bg-black/30"></div>
                     </div>
+
                     <button
                       type="button"
                       onClick={() => props.onPlay(active.playbackId)}
@@ -173,54 +131,37 @@ export default function Grid(props: GridProps) {
                     </div>
                   </motion.div>
 
-                  <div className="px-12 py-10">
-                    <div className="flex items-start justify-between">
-                      {/* <div> */}
-                      {/*   <motion.h3 */}
-                      {/*     className="text-base font-medium text-neutral-700 dark:text-neutral-200" */}
-                      {/*   > */}
-                      {/*     {active.title} */}
-                      {/*   </motion.h3> */}
-                      {/*   <motion.p */}
-                      {/*     className="text-base text-neutral-600 dark:text-neutral-400" */}
-                      {/*   > */}
-                      {/*     {active.subtitle} */}
-                      {/*   </motion.p> */}
-                      {/* </div> */}
-                    </div>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      <div className="flex w-full flex-col gap-4">
-                        <div>
-                          <div className="flex w-full items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              {Date.now() - new Date(active.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 && (
-                                <Badge variant="success" className="font-bold">New</Badge>
-                              )}
-                              <span className="text-neutral-500">
-                                Released in
-                                {' '}
-                                {new Date(active.createdAt).getFullYear()}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-neutral-500">Category:</span>
-                              {' '}
-                              <span>{active.category}</span>
-                            </div>
-                          </div>
-                          <div className="mt-1 flex gap-1">
-                            {active.tags.map(tag => <Badge key={tag} variant="outline">{tag}</Badge>)}
-                          </div>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex w-full flex-1 flex-col gap-4 px-12 py-10"
+                  >
+                    <div>
+                      <div className="flex w-full items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {Date.now() - new Date(active.createdAt).getTime() < 7 * 24 * 60 * 60 * 1000 && (
+                            <Badge variant="success" className="font-bold">New</Badge>
+                          )}
+                          <span className="text-neutral-500">
+                            Released in
+                            {' '}
+                            {new Date(active.createdAt).getFullYear()}
+                          </span>
                         </div>
-
-                        {active.courseDescription}
+                        <div>
+                          <span className="text-neutral-500">Category:</span>
+                          {' '}
+                          <span>{active.category}</span>
+                        </div>
                       </div>
-                    </motion.div>
-                  </div>
+                      <div className="mt-1 flex gap-1">
+                        {active.tags.map(tag => <Badge key={tag} variant="outline">{tag}</Badge>)}
+                      </div>
+                    </div>
+
+                    {active.courseDescription}
+                  </motion.div>
                 </motion.div>
               </div>
             )
@@ -269,8 +210,8 @@ export default function Grid(props: GridProps) {
                   {item.subtitle}
                 </p>
               </div>
-              <div>
-                {/* TODO: Limit the description and put elipsis */}
+
+              <div className="line-clamp-3 text-sm text-neutral-600">
                 {item.courseDescription}
               </div>
             </div>
