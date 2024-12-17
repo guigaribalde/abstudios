@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const shipment = (await (await db.select().from(Shipment).fullJoin(School, eq(Shipment.schoolId, School.id)).where(where)));
+    const shipment = (await (await db.select().from(Shipment).leftJoin(School, eq(Shipment.schoolId, School.id)).where(where)));
 
     return new Response(JSON.stringify(shipment), {
       status: 200,
