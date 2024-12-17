@@ -33,7 +33,6 @@ export const CreateExampleSchema = createInsertSchema(Example, {
 export const Course = pgTable('course', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
 
-  pdfUrl: t.varchar({ length: 2048 }).notNull(),
   title: t.varchar({ length: 256 }).notNull(),
   description: t.text().notNull(),
   tags: t.text().array().notNull(),
@@ -60,7 +59,6 @@ export type TCourse = InferSelectModel<typeof Course>;
 export type NewCourse = InferInsertModel<typeof Course>;
 
 export const CreateCourseSchema = createInsertSchema(Course, {
-  pdfUrl: z.string().url(),
   title: z.string().min(1).max(256),
   description: z.string().min(1),
   tags: z.array(z.string()).nonempty(),
@@ -72,6 +70,33 @@ export const CreateCourseSchema = createInsertSchema(Course, {
     'Maker',
     'Personal Skill Building',
   ]),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const File = pgTable('file', t => ({
+  id: t.uuid().notNull().primaryKey().defaultRandom(),
+  name: t.varchar({ length: 256 }).notNull(),
+  url: t.varchar({ length: 2048 }).notNull(),
+  type: t.text({ enum: ['pdf'] }).notNull().default('pdf'),
+  courseId: t
+    .uuid()
+    .notNull()
+    .references(() => Course.id, { onDelete: 'cascade' }),
+  createdAt: t.timestamp().defaultNow().notNull(),
+  updatedAt: t
+    .timestamp({ mode: 'date', withTimezone: true })
+    .$onUpdateFn(() => sql`now()`),
+}));
+
+export type TFile = InferSelectModel<typeof File>;
+export type NewFile = InferInsertModel<typeof File>;
+export const CreateFileSchema = createInsertSchema(File, {
+  name: z.string().min(1).max(256),
+  url: z.string().url(),
+  type: z.enum(['pdf']),
 }).omit({
   id: true,
   createdAt: true,
@@ -223,6 +248,14 @@ export const EditSchoolSchema = CreateSchoolSchema;
 
 export const CourseRelations = relations(Course, ({ many }) => ({
   seasons: many(Season),
+  files: many(File),
+}));
+
+export const FileRelations = relations(File, ({ one }) => ({
+  course: one(Course, {
+    fields: [File.courseId],
+    references: [Course.id],
+  }),
 }));
 
 export const SeasonRelations = relations(Season, ({ one, many }) => ({
