@@ -6,3 +6,4 @@ export * from "./session";
 export * from "./shipment";
 export * from "./user";
 export * from "./video";
+export * from "./example";
