@@ -1,45 +1,36 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
-import UserImageEmptyState from '@/lib/assets/empty-states/user-image';
-import type { TUser } from '@acme/database/schema';
+import ShipmentsEmptyState from '@/lib/assets/empty-states/shipments';
+import type { ShipmentWithSchool } from '@acme/database/schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, Edit, Filter, Loader2, Search, Trash, X } from 'lucide-react';
+
+import { Edit, Filter, Search, Trash } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import EditUserDialog from './edit-user-dialog';
+import EditShipmentDialog from './edit-shipment-dialog';
+import ShipmentStatusBadge from './shipment-status-badge';
 
 const mapStatus: Record<string, string> = {
-  true: 'Active',
-  false: 'Inactive',
+  pending: 'Pending',
+  shipped: 'Shipped',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled',
   all: 'All Status',
 };
 
-const mapRole: Record<string, string> = {
-  educator: 'Educator',
-  admin: 'Admin',
-  super_admin: 'Super Admin',
-  all: 'All Roles',
-};
-
-export default function UsersPage() {
+export default function ShipmentsPage() {
   const [search, setSearch] = useState('');
   const [active, setActive] = useState<string>('all');
-  const [role, setRole] = useState<string>('all');
+
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data: users, isPending } = useQuery<TUser[]>({
-    queryKey: ['users', debouncedSearch, active, role],
+  const { data: shipments, isPending } = useQuery<ShipmentWithSchool[]>({
+    queryKey: ['shipment', debouncedSearch, active],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (debouncedSearch) {
@@ -48,11 +39,8 @@ export default function UsersPage() {
       if (active !== 'all') {
         params.set('active', active);
       }
-      if (role !== 'all') {
-        params.set('role', role);
-      }
-      const users = await fetch(`/api/user?${params.toString()}`);
-      return users.json();
+      const shipments = await fetch(`/api/shipment?${params.toString()}`);
+      return shipments.json();
     },
 
   });
@@ -60,7 +48,7 @@ export default function UsersPage() {
   const queryClient = useQueryClient();
 
   async function deleteUser(id: string) {
-    const response = await fetch(`/api/user/${id}`, {
+    const response = await fetch(`/api/shipment/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -68,7 +56,7 @@ export default function UsersPage() {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to delete user');
+      throw new Error('Failed to delete shipment');
     }
 
     return response.json();
@@ -77,11 +65,11 @@ export default function UsersPage() {
   const deleteMutation = useMutation({
     mutationFn: deleteUser,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['shipment'] });
       toast.success('User deleted!');
     },
     onError: () => {
-      toast.error('Failed to delete user :(');
+      toast.error('Failed to delete shipment :(');
     },
   });
 
@@ -97,21 +85,10 @@ export default function UsersPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="true">Active</SelectItem>
-                <SelectItem value="false">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center gap-2">
-            <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="min-w-28">
-                {mapRole[role]}
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Roles</SelectItem>
-                <SelectItem value="educator">Educator</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="super_admin">Super Admin</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="shipped">Shipped</SelectItem>
+                <SelectItem value="delivered">Delivered</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -126,47 +103,39 @@ export default function UsersPage() {
           />
         </div>
       </div>
-      {isPending && (
-        <div className="absolute left-1/2 top-60 -translate-x-1/2 -translate-y-1/2">
-          <Loader2 size={24} className="animate-spin text-primary" />
-        </div>
-      )}
       {
-        !isPending && (users && users.length > 0
+        (!isPending && shipments && shipments.length > 0)
           ? (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>User</TableHead>
-                    <TableHead>Email Address</TableHead>
+                    <TableHead>School Name</TableHead>
+                    <TableHead>Address</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Status</TableHead>
+                    <TableHead>Contact</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users?.map(user => (
-                    <TableRow key={user.id}>
+                  {shipments?.map(shipment => (
+                    <TableRow key={shipment.id}>
                       <TableCell>
-                        {user.name}
-                        {' '}
-                        {user.lastName || ''}
+                        {shipment.school.name}
                       </TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.phone}</TableCell>
+                      <TableCell>{shipment.address}</TableCell>
+                      <TableCell>{shipment.phone}</TableCell>
                       <TableCell>
-                        <Badge variant={user.active ? 'success' : 'error'}>
-                          {user.active ? <Check size={12} /> : <X size={12} />}
-                          {user.active ? 'Active' : 'Inactive'}
-                        </Badge>
+                        <ShipmentStatusBadge status={shipment.status} />
                       </TableCell>
+                      <TableCell>{shipment.contact}</TableCell>
                       <TableCell className="flex gap-2">
-                        <EditUserDialog user={user}>
+                        <EditShipmentDialog shipment={shipment}>
                           <Button variant="ghost" size="icon" className="[&_svg]:size-6">
                             <Edit />
                           </Button>
-                        </EditUserDialog>
-                        <Button variant="ghost" size="icon" className="[&_svg]:size-6" onClick={() => deleteMutation.mutate(user.id)}>
+                        </EditShipmentDialog>
+                        <Button variant="ghost" size="icon" className="[&_svg]:size-6" onClick={() => deleteMutation.mutate(shipment.id)}>
                           <Trash />
                         </Button>
                       </TableCell>
@@ -178,12 +147,12 @@ export default function UsersPage() {
           : (
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <div className="flex flex-col items-center justify-center">
-                  <UserImageEmptyState />
+                  <ShipmentsEmptyState />
                   <h2 className="text-2xl font-bold">It looks empty in here.</h2>
-                  <h3>Add users.</h3>
+                  <h3>No shipments have been scheduled yet.</h3>
                 </div>
               </div>
-            ))
+            )
       }
     </div>
   );
