@@ -21,6 +21,7 @@ import { Loader2, TrashIcon } from 'lucide-react';
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { PDF_PATH_KEY } from '../add-video-dialog';
 import { deleteFile, uploadFile } from './course-actions';
 
 export const AddCourseFormSchema = z.object({
@@ -198,6 +199,8 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
       return;
     }
 
+    localStorage.setItem(PDF_PATH_KEY, data.path);
+
     form.clearErrors('file');
 
     form.setValue('file', {
@@ -210,6 +213,7 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
     setDeletingFile(true);
     if (form.getValues('file')?.url) {
       await deleteFile(form.getValues('file')!.url!);
+      localStorage.removeItem(PDF_PATH_KEY);
     }
     form.setValue('file', undefined);
     setDeletingFile(false);
@@ -438,7 +442,7 @@ const AddCourseForm = forwardRef<AddCourseFormRef, AddCourseFormProps>(({
                 <FormControl>
                   <div className="relative flex items-center gap-2.5">
                     <Input
-                      disabled={!isNewCourse}
+                      disabled={!isNewCourse || !form.getValues('courseId')}
                       type="file"
                       onChange={handleChangeFile}
                       accept="application/pdf"

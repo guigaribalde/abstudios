@@ -13,11 +13,35 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import UploadForm from './upload-form';
 
+export const VIDEO_ID_KEY = 'uploaded_video_id';
+export const PDF_PATH_KEY = 'uploaded_pdf_path';
+
 type AddVideoDialogProps = {
   children: React.ReactNode;
 };
 
 export default function AddVideoDialog({ children }: AddVideoDialogProps) {
+  const { mutateAsync: cleanUpMutation } = useMutation({
+    mutationFn: () => {
+      const videoId = localStorage.getItem(VIDEO_ID_KEY);
+      const pdfPath = localStorage.getItem(PDF_PATH_KEY);
+      if (!videoId && !pdfPath) {
+        return new Promise(resolve => resolve(null));
+      }
+      return fetch('/api/video', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ videoId, pdfPath }),
+      });
+    },
+    onSuccess: () => {
+      localStorage.removeItem(VIDEO_ID_KEY);
+      localStorage.removeItem(PDF_PATH_KEY);
+    },
+  });
+
   const [open, setOpen] = useState(false);
   async function postExample(data: UploadFormType) {
     const response = await fetch('/api/video/upload', {
@@ -39,6 +63,8 @@ export default function AddVideoDialog({ children }: AddVideoDialogProps) {
   const mutation = useMutation({
     mutationFn: postExample,
     onSuccess: () => {
+      localStorage.removeItem(VIDEO_ID_KEY);
+      localStorage.removeItem(PDF_PATH_KEY);
       queryClient.invalidateQueries({ queryKey: ['videos'] });
       toast.success('Example created!');
       setOpen(false);
@@ -47,6 +73,11 @@ export default function AddVideoDialog({ children }: AddVideoDialogProps) {
       toast.error('Failed to create example :(');
     },
   });
+
+  const handleCancel = () => {
+    cleanUpMutation();
+    setOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -60,7 +91,7 @@ export default function AddVideoDialog({ children }: AddVideoDialogProps) {
           onSubmit={async (data) => {
             await mutation.mutateAsync(data);
           }}
-          onCancel={() => setOpen(false)}
+          onCancel={handleCancel}
         />
       </DialogContent>
     </Dialog>
