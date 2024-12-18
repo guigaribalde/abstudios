@@ -1,18 +1,20 @@
-import { InferSelectModel, InferInsertModel, relations } from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-import { Organization, TOrganization } from "./organization";
-import { User } from "./user";
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import type { TOrganization } from './organization';
+import { relations } from 'drizzle-orm';
+import { pgTable } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
+import { Organization } from './organization';
+import { User } from './user';
 
-export const School = pgTable("school", (t) => ({
+export const School = pgTable('school', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   name: t.varchar({ length: 256 }).notNull(),
   active: t.boolean().notNull().default(true),
   organizationId: t
     .uuid()
     .notNull()
-    .references(() => Organization.id, { onDelete: "cascade" }),
+    .references(() => Organization.id, { onDelete: 'cascade' }),
 
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t

@@ -1,15 +1,17 @@
-import {
-  sql,
-  InferSelectModel,
+import type {
   InferInsertModel,
+  InferSelectModel,
+} from 'drizzle-orm';
+import {
   relations,
-} from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { Session } from "./session";
-import { z } from "zod";
+  sql,
+} from 'drizzle-orm';
+import { pgTable } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
+import { Session } from './session';
 
-export const Video = pgTable("video", (t) => ({
+export const Video = pgTable('video', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   uploadId: t.text().notNull(),
   playbackId: t.text(),
@@ -23,7 +25,7 @@ export const Video = pgTable("video", (t) => ({
     .references(() => Session.id),
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
+    .timestamp({ mode: 'date', withTimezone: true })
     .$onUpdateFn(() => sql`now()`),
 }));
 

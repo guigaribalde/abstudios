@@ -1,26 +1,28 @@
-import {
-  sql,
-  InferSelectModel,
+import type {
   InferInsertModel,
+  InferSelectModel,
+} from 'drizzle-orm';
+import {
   relations,
-} from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-import { Season } from "./season";
-import { Video } from "./video";
+  sql,
+} from 'drizzle-orm';
+import { pgTable } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
+import { Season } from './season';
+import { Video } from './video';
 
-export const Session = pgTable("session", (t) => ({
+export const Session = pgTable('session', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   seasonId: t
     .uuid()
     .notNull()
-    .references(() => Season.id, { onDelete: "cascade" }),
+    .references(() => Season.id, { onDelete: 'cascade' }),
   number: t.integer().notNull(),
 
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
+    .timestamp({ mode: 'date', withTimezone: true })
     .$onUpdateFn(() => sql`now()`),
 }));
 

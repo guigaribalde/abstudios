@@ -1,10 +1,11 @@
-import { InferSelectModel, InferInsertModel, relations } from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-import { School } from "./school";
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
+import { pgTable } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
+import { School } from './school';
 
-export const Organization = pgTable("organization", (t) => ({
+export const Organization = pgTable('organization', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   name: t.varchar({ length: 256 }).notNull(),
   active: t.boolean().notNull().default(true),

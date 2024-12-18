@@ -15,7 +15,7 @@ export default antfu(
       css: true,
     },
 
-    ignores: ["migrations/**/*", "next-env.d.ts"],
+    ignores: ["supabase/migrations/**/*", "next-env.d.ts", "supabase/config.toml"],
   },
   {
     rules: {

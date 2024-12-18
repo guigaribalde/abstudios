@@ -1,10 +1,11 @@
-import { InferSelectModel, InferInsertModel, relations } from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-import { School } from "./school";
+import type { InferInsertModel, InferSelectModel } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
+import { pgTable } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
+import { School } from './school';
 
-export const User = pgTable("user", (t) => ({
+export const User = pgTable('user', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   name: t.varchar({ length: 256 }).notNull(),
   lastName: t.varchar({ length: 256 }),
@@ -14,18 +15,18 @@ export const User = pgTable("user", (t) => ({
   authProviderUserId: t.varchar({ length: 2048 }),
   role: t
     .text({
-      enum: ["educator", "admin", "super-admin"],
+      enum: ['educator', 'admin', 'super-admin'],
     })
     .notNull(),
   schoolId: t
     .uuid()
     .notNull()
-    .references(() => School.id, { onDelete: "cascade" }),
+    .references(() => School.id, { onDelete: 'cascade' }),
   active: t.boolean().notNull().default(true),
 
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
+    .timestamp({ mode: 'date', withTimezone: true })
     .$onUpdateFn(() => new Date()),
 }));
 
@@ -39,7 +40,7 @@ export const CreateUserSchema = createInsertSchema(User, {
   imageUrl: z.string().url(),
   authProviderUserId: z.string().min(1).max(2048),
   active: z.boolean(),
-  role: z.enum(["educator", "admin", "super-admin"]),
+  role: z.enum(['educator', 'admin', 'super-admin']),
   schoolId: z.string(),
 }).omit({
   id: true,

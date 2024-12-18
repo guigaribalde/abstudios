@@ -1,16 +1,18 @@
-import {
+import type {
   InferInsertModel,
   InferSelectModel,
+} from 'drizzle-orm';
+import {
   relations,
   sql,
-} from "drizzle-orm";
-import { pgTable } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
-import { File } from "./file";
-import { Season } from "./season";
+} from 'drizzle-orm';
+import { pgTable } from 'drizzle-orm/pg-core';
+import { createInsertSchema } from 'drizzle-zod';
+import { z } from 'zod';
+import { File } from './file';
+import { Season } from './season';
 
-export const Course = pgTable("course", (t) => ({
+export const Course = pgTable('course', t => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
   title: t.varchar({ length: 256 }).notNull(),
   description: t.text().notNull(),
@@ -18,19 +20,19 @@ export const Course = pgTable("course", (t) => ({
   category: t
     .text({
       enum: [
-        "STEM",
-        "World Languages & Cultures",
-        "Fitness & Wellness",
-        "Arts & Entertainment",
-        "Maker",
-        "Personal Skill Building",
+        'STEM',
+        'World Languages & Cultures',
+        'Fitness & Wellness',
+        'Arts & Entertainment',
+        'Maker',
+        'Personal Skill Building',
       ],
     })
     .notNull(),
 
   createdAt: t.timestamp().defaultNow().notNull(),
   updatedAt: t
-    .timestamp({ mode: "date", withTimezone: true })
+    .timestamp({ mode: 'date', withTimezone: true })
     .$onUpdateFn(() => sql`now()`),
 }));
 
@@ -42,12 +44,12 @@ export const CreateCourseSchema = createInsertSchema(Course, {
   description: z.string().min(1),
   tags: z.array(z.string()).nonempty(),
   category: z.enum([
-    "STEM",
-    "World Languages & Cultures",
-    "Fitness & Wellness",
-    "Arts & Entertainment",
-    "Maker",
-    "Personal Skill Building",
+    'STEM',
+    'World Languages & Cultures',
+    'Fitness & Wellness',
+    'Arts & Entertainment',
+    'Maker',
+    'Personal Skill Building',
   ]),
 }).omit({
   id: true,

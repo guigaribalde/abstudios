@@ -1,6 +1,6 @@
+import type { NextRequest } from 'next/server';
 import { and, db, eq, ilike, or } from '@acme/database/client';
 import { CreateShipmentSchema, School, Shipment } from '@acme/database/schema';
-import type { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
