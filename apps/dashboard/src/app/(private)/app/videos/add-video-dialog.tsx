@@ -79,8 +79,15 @@ export default function AddVideoDialog({ children }: AddVideoDialogProps) {
     setOpen(false);
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      cleanUpMutation();
+    }
+    setOpen(open);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="flex max-w-4xl flex-col">
         <DialogHeader className="flex h-fit">
