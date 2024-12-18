@@ -1,8 +1,8 @@
 import type { AddCourseFormType } from '@/app/(private)/app/videos/upload-form/add-course-form';
 import type { AddVideoFormType } from '@/app/(private)/app/videos/upload-form/add-video-form';
 import type { TCourse } from '@acme/database/schema';
-import { db, eq } from '@acme/database/client';
-import { Course, Season, Session, Video } from '@acme/database/schema';
+import { and, db, eq } from '@acme/database/client';
+import { Course, File, Season, Session, Video } from '@acme/database/schema';
 import Mux from '@mux/mux-node';
 import { z } from 'zod';
 
@@ -50,16 +50,27 @@ export async function POST(req: Request) {
         currentCourse = await tx.insert(Course).values({
           title: course.courseId,
           tags: course.tags,
-          pdfUrl: '',
           category: course.category,
           description: course.description,
         }).returning();
       }
 
+      if (course.file) {
+        await tx.insert(File).values({
+          courseId: currentCourse[0].id,
+          name: course.file.name,
+          url: course.file.url,
+          type: 'pdf',
+        });
+      }
+
       let currentSeason = await tx.select()
         .from(Season)
         .where(
-          eq(Season.number, Number(course.seasonNumber)),
+          and(
+            eq(Season.number, Number(course.seasonNumber)),
+            eq(Season.courseId, currentCourse[0].id),
+          ),
         )
         .limit(1);
 
