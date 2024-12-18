@@ -1,6 +1,6 @@
+import type { NextRequest } from 'next/server';
 import { and, db, eq, ilike, or } from '@acme/database/client';
 import { CreateShipmentSchema, School, Shipment } from '@acme/database/schema';
-import type { NextRequest } from 'next/server';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,9 +13,9 @@ export async function GET(request: NextRequest) {
       where = and(
         search
           ? or(
-            ilike(School.name, `%${search}%`),
-            ilike(Shipment.contact, `%${search}%`),
-          )
+              ilike(School.name, `%${search}%`),
+              ilike(Shipment.contact, `%${search}%`),
+            )
           : undefined,
         status ? ilike(Shipment.status, status) : undefined,
       );

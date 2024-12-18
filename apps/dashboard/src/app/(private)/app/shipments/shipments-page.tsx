@@ -1,12 +1,12 @@
 'use client';
 
+import type { ShipmentWithSchool } from '@acme/database/schema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import ShipmentsEmptyState from '@/lib/assets/empty-states/shipments';
-import type { ShipmentWithSchool } from '@acme/database/schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Edit, Filter, Search, Trash } from 'lucide-react';
