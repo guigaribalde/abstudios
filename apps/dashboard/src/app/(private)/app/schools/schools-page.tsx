@@ -1,6 +1,6 @@
 'use client';
 
-import type { TSchool } from '@acme/database/schema';
+import type { TSchoolWithOrganization } from '@acme/database/schema';
 import { Badge } from '@/components/ui/badge';
 
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ export const SchoolsPage = () => {
 
   const debouncedSearch = useDebounce(search, 500);
 
-  const { data: schools, isPending } = useQuery<TSchool[]>({
+  const { data: schools, isPending } = useQuery<TSchoolWithOrganization[]>({
     queryKey: ['schools', debouncedSearch, active],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -89,7 +89,7 @@ export const SchoolsPage = () => {
               <TableBody>
                 {schools?.map(school => (
                   <TableRow key={school.id}>
-                    <TableCell className="h-12 py-0">{school.organizationName}</TableCell>
+                    <TableCell className="h-12 py-0">{school.organization?.name ?? school.name}</TableCell>
                     <TableCell className="h-12 py-0">{school.name}</TableCell>
                     <TableCell className="h-12 py-0">
                       <Badge variant={school.active ? 'success' : 'error'}>

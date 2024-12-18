@@ -1,4 +1,10 @@
+import type { AddCourseFormType } from '@/app/(private)/app/videos/upload-form/add-course-form';
+import type { AddVideoFormType } from '@/app/(private)/app/videos/upload-form/add-video-form';
+import type { TCourse } from '@acme/database/schema';
+import { and, db, eq } from '@acme/database/client';
+import { Course, File, Season, Session, Video } from '@acme/database/schema';
 import Mux from '@mux/mux-node';
+import { z } from 'zod';
 
 const mux = new Mux({
   tokenId: process.env.MUX_TOKEN_ID!,
@@ -7,75 +13,118 @@ const mux = new Mux({
 
 export async function POST(req: Request) {
   try {
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
+    const body = await req.json();
+    // console.log(body);
+    // const validatedData = UploadFormSchema.safeParse(body);
+    //
+    // if (!validatedData.success) {
+    //   return new Response(
+    //     JSON.stringify({
+    //       error: 'Validation error',
+    //       details: validatedData.error.format(),
+    //     }),
+    //     {
+    //       status: 400,
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //       },
+    //     },
+    //   );
+    // }
+    const { video, course } = body as { video: AddVideoFormType; course: AddCourseFormType };
 
-    if (!file) {
-      return Response.json({ error: 'File is required' }, { status: 400 });
-    }
+    const uuidSchema = z.string().uuid();
+    const isUUID = uuidSchema.safeParse(course?.courseId).success;
+    const createdVideo = await db.transaction(async (tx) => {
+      let currentCourse: TCourse[] = [];
+      if (isUUID) {
+        currentCourse = await tx.select()
+          .from(Course)
+          .where(
+            eq(Course.id, course.courseId),
+          )
+          .limit(1);
+      }
 
-    // eslint-disable-next-line node/prefer-global/buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
+      if (currentCourse.length === 0) {
+        currentCourse = await tx.insert(Course).values({
+          title: course.courseId,
+          tags: course.tags,
+          category: course.category,
+          description: course.description,
+        }).returning();
+      }
 
-    const upload = await mux.video.uploads.create({
-      new_asset_settings: {
-        playback_policy: ['public'],
-        video_quality: 'basic',
-      },
-      cors_origin: '*',
+      if (course.file) {
+        await tx.insert(File).values({
+          courseId: currentCourse[0].id,
+          name: course.file.name,
+          url: course.file.url,
+          type: 'pdf',
+        });
+      }
+
+      let currentSeason = await tx.select()
+        .from(Season)
+        .where(
+          and(
+            eq(Season.number, Number(course.seasonNumber)),
+            eq(Season.courseId, currentCourse[0].id),
+          ),
+        )
+        .limit(1);
+
+      if (currentSeason.length === 0) {
+        currentSeason = await tx.insert(Season).values({
+          number: Number(course.seasonNumber),
+          courseId: currentCourse[0].id,
+        }).returning();
+      }
+
+      // TODO: from this point we need to delete episodes with the same number if they exist
+      // in the future, when deleting the episode, we need also to remove from mux
+
+      const currentSession = await tx.insert(Session).values({
+        seasonId: currentSeason[0].id,
+        number: Number(course.sessionNumber),
+      }).returning();
+
+      const upload = await mux.video.uploads.retrieve(video.uploadId);
+      const asset = upload.asset_id ? await mux.video.assets.retrieve(upload.asset_id) : null;
+      const playbackId = asset?.playback_ids?.[0].id || null;
+
+      const createdVideo = await tx.insert(Video).values({
+        url: video.url,
+        title: video.title,
+        subtitle: video.subtitle,
+        uploadId: video.uploadId,
+        sessionId: currentSession[0].id,
+        playbackId,
+      }).returning();
+
+      return createdVideo;
     });
 
-    await fetch(upload.url, {
-      method: 'PUT',
-      body: buffer,
-      headers: {
-        'Content-Type': file.type,
-      },
-    });
-
-    // // Get the asset details
-    // const asset = await mux.video.assets.retrieveInputInfo('yl1j4c2ILLeYUKVQfyquiA2LgWoskG02u00xhatvkBrOo');
-
-    return new Response(JSON.stringify(upload), {
+    return new Response(JSON.stringify({ video: createdVideo }), {
       status: 201,
       headers: {
         'Content-Type': 'application/json',
       },
     });
   } catch (error) {
-    console.error('Error creating Mux asset:', error);
-    return Response.json(
-      { error: 'Failed to create video asset' },
-      { status: 500 },
-    );
-  }
-}
-
-export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const id = searchParams.get('id');
-
-    if (!id) {
-      return Response.json({ error: 'Upload ID is required' }, { status: 400 });
-    }
-
-    const upload = await mux.video.uploads.retrieve(id);
-
-    if (upload.asset_id) {
-      const asset = await mux.video.assets.retrieve(upload.asset_id);
-      return Response.json({
-        ...upload,
-        asset,
-      });
-    }
-
-    return Response.json(upload);
-  } catch (error) {
-    console.error('Error fetching Mux upload:', error);
-    return Response.json(
-      { error: 'Failed to fetch upload status' },
-      { status: 500 },
+    console.error(error);
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to create video',
+        message:
+          error instanceof Error ? error.message : 'Unknown error occurred',
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
     );
   }
 }

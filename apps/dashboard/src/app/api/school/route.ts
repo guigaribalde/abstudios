@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { and, db, eq, ilike, or } from '@acme/database/client';
-import { CreateSchoolSchema, School } from '@acme/database/schema';
+import { CreateSchoolSchema, Organization, School } from '@acme/database/schema';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,15 +13,20 @@ export async function GET(request: NextRequest) {
       where = and(
         search
           ? or(
-            ilike(School.organizationName, `%${search}%`),
-            ilike(School.name, `%${search}%`),
-          )
+              ilike(Organization.name, `%${search}%`),
+              ilike(School.name, `%${search}%`),
+            )
           : undefined,
         active ? eq(School.active, active === 'true') : undefined,
       );
     }
 
-    const schools = (await db.select().from(School).where(where));
+    const response = (await db.select().from(School).where(where).leftJoin(Organization, eq(School.organizationId, Organization.id)));
+
+    const schools = response.map(({ organization, school }) => ({
+      ...school,
+      organization: organization ?? null,
+    }));
 
     return new Response(JSON.stringify(schools), {
       status: 200,

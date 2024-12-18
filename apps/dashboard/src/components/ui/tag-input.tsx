@@ -23,6 +23,7 @@ type TagsInputProps = {
   placeholder?: string;
   maxItems?: number;
   minItems?: number;
+  disabled?: boolean;
 } & React.HTMLAttributes<HTMLDivElement>;
 
 type TagsInputContextProps = {
@@ -47,6 +48,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
       minItems,
       className,
       dir,
+      disabled,
       ...props
     },
     ref,
@@ -211,9 +213,9 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
             break;
 
           case 'Escape':
-            const newIndex = activeIndex === -1 ? value.length - 1 : -1;
+          { const newIndex = activeIndex === -1 ? value.length - 1 : -1;
             setActiveIndex(newIndex);
-            break;
+            break; }
 
           case 'Enter':
             if (inputValue.trim() !== '') {
@@ -239,17 +241,17 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
       [],
     );
 
+    const contextValue = React.useMemo(() => ({
+      value,
+      onValueChange,
+      inputValue,
+      setInputValue,
+      activeIndex,
+      setActiveIndex,
+    }), [value, onValueChange, inputValue, activeIndex]);
+
     return (
-      <TagInputContext.Provider
-        value={{
-          value,
-          onValueChange,
-          inputValue,
-          setInputValue,
-          activeIndex,
-          setActiveIndex,
-        }}
-      >
+      <TagInputContext.Provider value={contextValue}>
         <div
           {...props}
           ref={ref}
@@ -270,6 +272,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
               data-active={activeIndex === index}
               className={cn(
                 'relative px-1 rounded flex items-center gap-1 data-[active=\'true\']:ring-2 data-[active=\'true\']:ring-muted-foreground truncate aria-disabled:opacity-50 aria-disabled:cursor-not-allowed',
+                disabled && 'opacity-70',
               )}
               variant="default"
             >
@@ -278,7 +281,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
                 type="button"
                 aria-label={`Remove ${item} option`}
                 aria-roledescription="button to remove option"
-                disabled={disableButton}
+                disabled={disabled || disableButton}
                 onMouseDown={mousePreventDefault}
                 onClick={() => RemoveValue(item)}
                 className="disabled:cursor-not-allowed"
@@ -296,7 +299,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
           <Input
             tabIndex={0}
             aria-label="input tag"
-            disabled={disableInput}
+            disabled={disabled || disableInput}
             onKeyDown={handleKeyDown}
             onPaste={handlePaste}
             value={inputValue}

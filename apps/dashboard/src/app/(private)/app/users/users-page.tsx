@@ -1,5 +1,6 @@
 'use client';
 
+import type { TUser } from '@acme/database/schema';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +13,6 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import UserImageEmptyState from '@/lib/assets/empty-states/user-image';
-import type { TUser } from '@acme/database/schema';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Check, Edit, Filter, Loader2, Search, Trash, X } from 'lucide-react';
 import { useState } from 'react';

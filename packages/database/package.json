@@ -1,8 +1,10 @@
 {
   "name": "@acme/database",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -17,22 +19,24 @@
       "default": "./src/schema.ts"
     }
   },
-  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "dev": "tsc",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
-    "push": "pnpm with-env drizzle-kit push",
-    "studio": "pnpm with-env drizzle-kit studio",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "with-env": "dotenv -e ../../.env --"
+    "with-env": "dotenv -e ../../.env --",
+    "dev": "pnpm supabase start",
+    "db:studio": "pnpm with-env drizzle-kit studio",
+    "db:generate": "pnpm with-env drizzle-kit generate",
+    "db:push": "pnpm with-env tsx ./push.ts"
   },
   "dependencies": {
     "@vercel/postgres": "^0.10.0",
     "drizzle-orm": "^0.37.0",
     "drizzle-zod": "^0.5.1",
+    "postgres": "^3.4.5",
+    "supabase": "^2.1.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -40,6 +44,7 @@
     "@types/node": "^20",
     "dotenv-cli": "^7.4.4",
     "drizzle-kit": "^0.29.1",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2"
   }
 }

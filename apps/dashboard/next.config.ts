@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         hostname: 'assets.aceternity.com',
         pathname: '/demos/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'image.mux.com',
+        pathname: '/**',
+      },
     ],
   },
 };

@@ -100,3 +100,31 @@ body {
   width: var(--radix-popover-trigger-width);
   max-height: var(--radix-popover-content-available-height);
 }
+
+.scrollarea-full-height > div {
+  height: unset !important;
+}
+.scrollarea-full-height > div > div {
+  height: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}

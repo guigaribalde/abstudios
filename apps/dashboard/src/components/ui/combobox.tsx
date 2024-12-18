@@ -16,17 +16,18 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
 import * as React from 'react';
 
 type ComboboxProps = {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
-  list: { value: string; label: string }[];
+  list: { value: string; label: string; disabled?: boolean }[];
   buttonClassName?: string;
   disabled?: boolean;
   onCreate?: (value: string) => void;
+  loading?: boolean;
 };
 
 export function Combobox(props: ComboboxProps) {
@@ -46,10 +47,10 @@ export function Combobox(props: ComboboxProps) {
           {props.value
             ? props.list.find(item => item.value === props.value)?.label
             : props.placeholder ?? 'Select...'}
-          <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
+          {props.loading ? <Loader2 className="ml-auto size-4 animate-spin" /> : <ChevronsUpDown className="ml-auto size-4 shrink-0 opacity-50" />}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="popover-content-width-same-as-its-trigger p-0">
+      <PopoverContent align="start" className="max-h-[var(--radix-popover-content-available-height)] w-[max(10rem,var(--radix-popover-trigger-width))] p-0">
         <Command>
           <CommandInput
             value={query}
@@ -57,7 +58,7 @@ export function Combobox(props: ComboboxProps) {
             placeholder="Search..."
           />
           <CommandList>
-            {props.onCreate
+            {props.onCreate && query.length
               ? (
 
                   <CommandEmpty
@@ -127,6 +128,14 @@ export function Combobox(props: ComboboxProps) {
                       : null
                   )
                 : null}
+              {props.loading
+                ? (
+                    <CommandItem>
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                      Loading...
+                    </CommandItem>
+                  )
+                : null}
               {props.list.map(item => (
                 <CommandItem
                   key={item.value}
@@ -137,6 +146,7 @@ export function Combobox(props: ComboboxProps) {
                     );
                     setOpen(false);
                   }}
+                  disabled={item.disabled}
                 >
                   <Check
                     className={cn(

@@ -2,8 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { useOutsideClick } from '@/hooks/use-outside-click';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Play } from 'lucide-react';
-import Image from 'next/image';
+import { Play, PlayCircle } from 'lucide-react';
 import React, { useEffect, useId, useRef, useState } from 'react';
 
 const cards = [
@@ -221,12 +220,15 @@ export default function ExpandableCardDemo() {
                 <motion.div
                   layoutId={`card-${active.title}-${id}`}
                   ref={ref}
-                  className="flex size-full  max-w-[850px] flex-col overflow-hidden  bg-white  sm:rounded-3xl md:h-fit md:max-h-[90%]"
+                  className="flex size-full  max-w-[850px] flex-col overflow-hidden  rounded-md  bg-white md:h-fit md:max-h-[90%]"
                 >
                   <motion.div className="relative flex aspect-video" layoutId={`image-${active.title}-${id}`}>
                     <div className="size-full bg-gray-400">
                     </div>
-                    <div className="absolute left-0 top-0 flex size-full flex-col justify-between p-11">
+                    <div className="absolute left-1/2 top-1/2 w-fit -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/30 text-white">
+                      <PlayCircle className="size-12" />
+                    </div>
+                    <div className="absolute left-0 top-0 flex size-full flex-col justify-between px-12 py-10">
                       <div className="flex flex-col gap-7">
                         <div className="flex flex-col gap-2">
                           <h1 className="text-5xl font-bold text-white">
@@ -239,7 +241,7 @@ export default function ExpandableCardDemo() {
                         <span className="text-2xl text-white">Season 1, Session 2</span>
                       </div>
                       <div>
-                        <Button>
+                        <Button size="lg">
                           <Play />
                           Play
                         </Button>
@@ -247,48 +249,30 @@ export default function ExpandableCardDemo() {
                     </div>
                   </motion.div>
 
-                  <div>
-                    <div className="flex items-start justify-between p-4">
-                      <div className="">
+                  <div className="px-12 py-10">
+                    <div className="flex items-start justify-between">
+                      <div>
                         <motion.h3
-                          layoutId={`title-${active.title}-${id}`}
                           className="text-base font-medium text-neutral-700 dark:text-neutral-200"
                         >
                           {active.title}
                         </motion.h3>
                         <motion.p
-                          layoutId={`description-${active.description}-${id}`}
                           className="text-base text-neutral-600 dark:text-neutral-400"
                         >
                           {active.description}
                         </motion.p>
                       </div>
-
-                      <motion.a
-                        layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        href={active.ctaLink}
-                        target="_blank"
-                        className="rounded-full bg-green-500 px-4 py-3 text-sm font-bold text-white"
-                      >
-                        {active.ctaText}
-                      </motion.a>
                     </div>
-                    <div className="relative px-4 pt-4">
-                      <motion.div
-                        layout
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="flex h-40 flex-col items-start gap-4 overflow-auto pb-10 text-xs text-neutral-600 [-ms-overflow-style:none] [-webkit-overflow-scrolling:touch] [mask:linear-gradient(to_bottom,white,white,transparent)] [scrollbar-width:none] dark:text-neutral-400 md:h-fit md:text-sm lg:text-base"
-                      >
-                        {typeof active.content === 'function'
-                          ? active.content()
-                          : active.content}
-                      </motion.div>
-                    </div>
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      {typeof active.content === 'function'
+                        ? active.content()
+                        : active.content}
+                    </motion.div>
                   </div>
                 </motion.div>
               </div>
@@ -301,32 +285,28 @@ export default function ExpandableCardDemo() {
             layoutId={`card-${card.title}-${id}`}
             key={card.title}
             onClick={() => setActive(card)}
-            className="flex cursor-pointer flex-col  rounded-xl p-4 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+            className="flex w-full max-w-sm cursor-pointer flex-col overflow-hidden rounded-sm shadow-lg"
           >
-            <div className="flex w-full flex-col  gap-4">
-              <motion.div layoutId={`image-${card.title}-${id}`}>
-                <Image
-                  width={100}
-                  height={100}
-                  src={card.src}
-                  alt={card.title}
-                  className="h-60 w-full  rounded-lg object-cover object-top"
-                />
-              </motion.div>
-              <div className="flex flex-col items-center justify-center">
-                <motion.h3
-                  layoutId={`title-${card.title}-${id}`}
-                  className="text-center text-base font-medium text-neutral-800 dark:text-neutral-200 md:text-left"
-                >
-                  {card.title}
-                </motion.h3>
-                <motion.p
-                  layoutId={`description-${card.description}-${id}`}
-                  className="text-center text-base text-neutral-600 dark:text-neutral-400 md:text-left"
-                >
-                  {card.description}
-                </motion.p>
+            <motion.div layoutId={`image-${card.title}-${id}`} className="relative">
+              <div className="aspect-video w-full bg-neutral-300"></div>
+              <div className="absolute left-1/2 top-1/2 w-fit -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/30 text-white">
+                <PlayCircle className="size-12" />
               </div>
+            </motion.div>
+            <div className="flex flex-col gap-5 px-3 py-5">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3 text-neutral-500">
+                  <p>Season 1</p>
+                  <p>Session 1</p>
+                </div>
+                <h3 className="text-lg font-bold">
+                  {card.title}
+                </h3>
+                <p>
+                  {card.description}
+                </p>
+              </div>
+              <div>Description</div>
             </div>
           </motion.div>
         ))}

@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
-import { GraduationCap, Home, Truck, Users, Video } from 'lucide-react';
+import { Building2, GraduationCap, Home, Truck, Users, Video } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -31,6 +31,11 @@ const items = [
     title: 'Users',
     url: '/app/users',
     icon: Users,
+  },
+  {
+    title: 'Organizations',
+    url: '/app/organizations',
+    icon: Building2,
   },
   {
     title: 'Schools',
