@@ -1,5 +1,6 @@
 'use client';
 import type Mux from '@mux/mux-node';
+import { VIDEO_ID_KEY } from '@/app/(private)/app/videos/add-video-dialog';
 import { cn } from '@/lib/utils';
 import MuxUploader, { MuxUploaderDrop, MuxUploaderFileSelect } from '@mux/mux-uploader-react';
 import { AlertCircle, CheckCircle, Upload, UploadCloud } from 'lucide-react';
@@ -85,6 +86,7 @@ export default function VideoUploader(props: VideoUploaderProps) {
         endpoint={async () => {
           const res = await fetch('/api/video/upload/url');
           const json = await res.json() as Mux.Video.Uploads.Upload;
+          localStorage.setItem(VIDEO_ID_KEY, json.id);
           setUpload(json);
           return json.url;
         }}
