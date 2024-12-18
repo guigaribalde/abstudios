@@ -1,4 +1,6 @@
 export * from "./course";
+export * from "./example";
+export * from "./file";
 export * from "./organization";
 export * from "./school";
 export * from "./season";
@@ -6,4 +8,3 @@ export * from "./session";
 export * from "./shipment";
 export * from "./user";
 export * from "./video";
-export * from "./example";

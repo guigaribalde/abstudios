@@ -1,18 +1,17 @@
 import {
-  InferSelectModel,
   InferInsertModel,
-  sql,
+  InferSelectModel,
   relations,
+  sql,
 } from "drizzle-orm";
 import { pgTable } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { File } from "./file";
 import { Season } from "./season";
 
 export const Course = pgTable("course", (t) => ({
   id: t.uuid().notNull().primaryKey().defaultRandom(),
-
-  pdfUrl: t.varchar({ length: 2048 }).notNull(),
   title: t.varchar({ length: 256 }).notNull(),
   description: t.text().notNull(),
   tags: t.text().array().notNull(),
@@ -39,7 +38,6 @@ export type TCourse = InferSelectModel<typeof Course>;
 export type NewCourse = InferInsertModel<typeof Course>;
 
 export const CreateCourseSchema = createInsertSchema(Course, {
-  pdfUrl: z.string().url(),
   title: z.string().min(1).max(256),
   description: z.string().min(1),
   tags: z.array(z.string()).nonempty(),
@@ -59,4 +57,5 @@ export const CreateCourseSchema = createInsertSchema(Course, {
 
 export const CourseRelations = relations(Course, ({ many }) => ({
   seasons: many(Season),
+  files: many(File),
 }));
