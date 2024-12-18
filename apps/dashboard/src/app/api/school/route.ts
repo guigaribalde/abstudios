@@ -13,9 +13,9 @@ export async function GET(request: NextRequest) {
       where = and(
         search
           ? or(
-            ilike(Organization.name, `%${search}%`),
-            ilike(School.name, `%${search}%`),
-          )
+              ilike(Organization.name, `%${search}%`),
+              ilike(School.name, `%${search}%`),
+            )
           : undefined,
         active ? eq(School.active, active === 'true') : undefined,
       );
