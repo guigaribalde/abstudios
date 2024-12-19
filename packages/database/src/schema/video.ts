@@ -31,6 +31,7 @@ export const Video = pgTable('video', t => ({
 
 export type TVideo = InferSelectModel<typeof Video>;
 export type NewVideo = InferInsertModel<typeof Video>;
+
 export const CreateVideoSchema = createInsertSchema(Video, {
   url: z.string().url(),
   title: z.string().min(1).max(256),

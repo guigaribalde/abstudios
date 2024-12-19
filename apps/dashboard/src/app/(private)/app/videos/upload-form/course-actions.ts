@@ -1,12 +1,11 @@
 'use server';
-
-import supabase from '@/lib/supabase';
+import { client } from '@acme/database/supabase';
 
 export const uploadFile = async (file: File) => {
   const uuid = crypto.randomUUID();
-  return supabase.storage.from('files').upload(`${uuid}-${file.name}`, file);
+  return client.storage.from('files').upload(`${uuid}-${file.name}`, file);
 };
 
 export const deleteFile = async (path: string) => {
-  return supabase.storage.from('files').remove([path]);
+  return client.storage.from('files').remove([path]);
 };

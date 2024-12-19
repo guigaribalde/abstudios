@@ -25,6 +25,7 @@ export const Organization = pgTable('organization', t => ({
 
 export type TOrganization = InferSelectModel<typeof Organization>;
 export type NewOrganization = InferInsertModel<typeof Organization>;
+
 export const CreateOrganizationSchema = createInsertSchema(Organization, {
   name: z.string().min(1).max(256),
   active: z.boolean().optional(),

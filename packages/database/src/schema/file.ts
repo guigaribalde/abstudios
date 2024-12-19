@@ -25,8 +25,10 @@ export const File = pgTable('file', t => ({
     .timestamp({ mode: 'date', withTimezone: true })
     .$onUpdateFn(() => sql`now()`),
 }));
+
 export type TFile = InferSelectModel<typeof File>;
 export type NewFile = InferInsertModel<typeof File>;
+
 export const CreateFileSchema = createInsertSchema(File, {
   name: z.string().min(1).max(256),
   url: z.string().url(),

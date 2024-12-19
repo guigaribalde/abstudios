@@ -32,6 +32,7 @@ export const Shipment = pgTable('shipment', t => ({
 export type TShipment = InferSelectModel<typeof Shipment>;
 export type ShipmentWithSchool = TShipment & { school: TSchool };
 export type NewShipment = InferInsertModel<typeof Shipment>;
+
 export const CreateShipmentSchema = createInsertSchema(Shipment, {
   schoolId: z.string().uuid(),
   phone: z.string().min(1).max(256),
