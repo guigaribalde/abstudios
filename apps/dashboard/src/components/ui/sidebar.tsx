@@ -294,6 +294,7 @@ const SidebarRail = React.forwardRef<
 
   return (
     <button
+      type="button"
       ref={ref}
       data-sidebar="rail"
       aria-label="Toggle Sidebar"
@@ -760,5 +761,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
+  // eslint-disable-next-line react-refresh/only-export-components
   useSidebar,
 };

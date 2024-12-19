@@ -26,13 +26,13 @@ type DBType = PostgresJsDatabase<typeof schema> | VercelPgDatabase<typeof schema
 
 export const db: DBType = isLocal
   ? drizzlePostgres(postgres(localUrl), {
-      schema,
-      casing: 'snake_case',
-    })
+    schema,
+    casing: 'snake_case',
+  })
   : drizzleVercel({
-      client: sql,
-      schema,
-      casing: 'snake_case',
-    });
+    client: sql,
+    schema,
+    casing: 'snake_case',
+  });
 
 export { and, eq, ilike, or, sql } from 'drizzle-orm';

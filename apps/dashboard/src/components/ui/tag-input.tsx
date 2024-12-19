@@ -69,6 +69,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
           onValueChange([...value, val]);
         }
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [value],
     );
 
@@ -78,6 +79,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
           onValueChange(value.filter(item => item !== val));
         }
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [value],
     );
 
@@ -99,6 +101,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
         onValueChange(newValue);
         setInputValue('');
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [value],
     );
 
@@ -132,6 +135,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
         }
       };
       VerifyDisable();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value]);
 
     // ? check: Under build , default option support
@@ -226,6 +230,7 @@ export const TagsInput = React.forwardRef<HTMLDivElement, TagsInputProps>(
             break;
         }
       },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       [activeIndex, value, inputValue, RemoveValue],
     );
 

@@ -72,11 +72,11 @@ export default function AddShipmentForm({
                   list={
                     (!isPending && schools && schools.length > 0)
                       ? schools.map((schools) => {
-                          return {
-                            value: schools.id,
-                            label: schools.name,
-                          };
-                        })
+                        return {
+                          value: schools.id,
+                          label: schools.name,
+                        };
+                      })
                       : []
                   }
                   onChange={field.onChange}
